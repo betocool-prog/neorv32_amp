@@ -42,7 +42,7 @@ use neorv32.neorv32_package.all;
 entity neorv32_amp is
   generic (
     -- adapt these for your setup --
-    CLOCK_FREQUENCY   : natural := 50000000; -- clock frequency of clk_i in Hz
+    CLOCK_FREQUENCY   : natural := 100000000; -- clock frequency of clk_i in Hz
     MEM_INT_DMEM_SIZE : natural := 32*1024     -- size of processor-internal data memory in bytes
   );
   port (
@@ -64,6 +64,28 @@ end entity;
 
 architecture neorv32_amp_rtl of neorv32_amp is
 
+  -- QSys Components ----------------------------------------------------------------
+  -- -------------------------------------------------------------------------------------------
+component platform is
+	  port (
+			clk_src_i_clk         : in  std_logic := 'X'; -- clk
+			clk_src_rst_i_reset_n : in  std_logic := 'X'; -- reset_n
+			clk_src_o_clk         : out std_logic;        -- clk
+			clk_src_rst_o_reset_n : out std_logic;        -- reset_n
+			pll0_clk_o_clk        : out std_logic;        -- clk
+			pll0_rst_i_reset      : in  std_logic := 'X'; -- reset
+			pll0_clk_i_clk        : in  std_logic := 'X'; -- clk
+			pll1_clk_i_clk        : in  std_logic := 'X'; -- clk
+			pll1_rst_i_reset      : in  std_logic := 'X'; -- reset
+			pll1_clk_o_clk        : out std_logic         -- clk
+	  );
+end component platform;
+
+  signal main_clk: std_logic;
+  signal pll0_clk: std_logic;
+  signal pll1_clk: std_logic;
+  signal resetn: std_logic;
+  signal reset: std_logic;
   signal con_gpio_o : std_ulogic_vector(63 downto 0);
 
 begin
@@ -105,8 +127,8 @@ begin
   )
   port map (
     -- Global control --
-    clk_i       => clk_i,       -- global clock, rising edge
-    rstn_i      => rstn_i,      -- global reset, low-active, async
+    clk_i       => pll0_clk,       -- global clock, rising edge
+    rstn_i      => resetn,      -- global reset, low-active, async
 
     -- GPIO (available if IO_GPIO_EN = true) --
     gpio_o      => con_gpio_o,  -- parallel output
@@ -121,8 +143,26 @@ begin
     xip_sdi_i => xip_sdi_i,		-- controller data in, peripheral data out
     xip_csn_o => xip_csn_o			-- chip-select
   );
+ 
+  -- QSys Components ----------------------------------------------------------------
+  -- -------------------------------------------------------------------------------------------
+
+u0 : component platform
+	  port map (
+			clk_src_i_clk         => clk_i,         --     clk_src_i.clk
+			clk_src_rst_i_reset_n => rstn_i, -- clk_src_rst_i.reset_n
+			clk_src_o_clk         => main_clk,         --     clk_src_o.clk
+			clk_src_rst_o_reset_n => resetn, -- clk_src_rst_o.reset_n
+			pll0_clk_o_clk        => pll0_clk,        --    pll0_clk_o.clk
+			pll0_rst_i_reset      => reset,      --    pll0_rst_i.reset
+			pll0_clk_i_clk        => main_clk,        --    pll0_clk_i.clk
+			pll1_clk_i_clk        => main_clk,        --    pll1_clk_i.clk
+			pll1_rst_i_reset      => reset,      --    pll1_rst_i.reset
+			pll1_clk_o_clk        => pll1_clk         --    pll1_clk_o.clk
+	  );    
 
   -- GPIO output --
   gpio_o <= con_gpio_o(7 downto 0);
+  reset <= not resetn;
 
 end architecture; --neorv32_amp

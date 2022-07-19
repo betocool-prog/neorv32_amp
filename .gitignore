@@ -6,7 +6,10 @@
 /output_files/
 /incremental_db/
 neorv32_amp.qws
-*.vhd.bak
+platform.sopcinfo
+*.bak
+.qsys_edit/
+platform/
 
 # VS Code config
 /.vscode/

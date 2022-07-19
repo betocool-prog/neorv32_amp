@@ -34,5 +34,5 @@
 #***************************************************************************
 # Create Clock
 #***************************************************************************
-create_clock -period 10.0  [get_ports clk_i]
+create_clock -period 20.0  [get_ports clk_i]
 derive_clock_uncertainty
