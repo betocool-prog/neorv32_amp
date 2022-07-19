@@ -1,0 +1,12 @@
+# temporary/legacy files/folders
+*.tmp
+~*
+# Quartus Project
+/db/
+/output_files/
+/incremental_db/
+neorv32_amp.qws
+*.vhd.bak
+
+# VS Code config
+/.vscode/
