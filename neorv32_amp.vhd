@@ -58,7 +58,18 @@ entity neorv32_amp is
     xip_clk_o   : out std_ulogic; -- serial clock
     xip_sdo_o   : out std_ulogic; -- controller data output
     xip_sdi_i   : in  std_ulogic; -- device data input
-    xip_csn_o   : out std_ulogic	 -- chip-select, low-active
+    xip_csn_o   : out std_ulogic;	 -- chip-select, low-active
+	 -- 
+	 
+	 -- ADC --
+	 adc_csn_o	:	out std_logic;
+	 adc_data_o	:	out std_logic;
+	 adc_data_i	:	in std_logic;
+	 adc_clk_o	:	out std_logic;
+	 
+	 -- Test --
+	 -- Pin D3
+	 test_d3_o	: out std_logic
   );
 end entity;
 
@@ -81,12 +92,33 @@ component platform is
 	  );
 end component platform;
 
+component adc is
+	port(
+		 -- ADC --
+	 -- Interface to the TOP level
+	 adc_clk_i	: 	in std_logic;
+	 adc_rst_i	:	in std_logic;
+	 
+	 -- SPI interface to chip --
+	 adc_csn_o	:	out std_logic;
+	 adc_data_o	:	out std_logic;
+	 adc_data_i	:	in std_logic	:= 'X';
+	 adc_clk_o	:	out std_logic
+	);
+end component adc;
+	
+	-- QSys interface
   signal main_clk: std_logic;
   signal pll0_clk: std_logic;
   signal pll1_clk: std_logic;
   signal resetn: std_logic;
   signal reset: std_logic;
+  
+  signal test: std_logic;
+  
+  -- NEORV32 LEDs
   signal con_gpio_o : std_ulogic_vector(63 downto 0);
+
 
 begin
 
@@ -123,6 +155,8 @@ begin
     ICACHE_NUM_BLOCKS            => 8,      -- i-cache: number of blocks (min 1), has to be a power of 2
     ICACHE_BLOCK_SIZE            => 256,     -- i-cache: block size in bytes (min 4), has to be a power of 2
     ICACHE_ASSOCIATIVITY         => 1      -- i-cache: associativity / number of sets (1=direct_mapped), has to be a power of 2
+	     -- External memory interface (WISHBONE) --
+    -- MEM_EXT_EN                   => true  -- implement external memory bus interface?
 
   )
   port map (
@@ -159,10 +193,23 @@ u0 : component platform
 			pll1_clk_i_clk        => main_clk,        --    pll1_clk_i.clk
 			pll1_rst_i_reset      => reset,      --    pll1_rst_i.reset
 			pll1_clk_o_clk        => pll1_clk         --    pll1_clk_o.clk
-	  );    
+	  );
+
+adc0: component adc
+		port map (
+			 adc_clk_i	=>	pll1_clk,
+			 adc_rst_i	=> reset,
+			 adc_csn_o	=> adc_csn_o,
+			 adc_data_o	=> adc_data_o,
+			 adc_data_i	=> adc_data_i,
+			 adc_clk_o	=> test
+		);
 
   -- GPIO output --
   gpio_o <= con_gpio_o(7 downto 0);
   reset <= not resetn;
+  adc_clk_o <= test;
+  test_d3_o <= test;
+  
 
 end architecture; --neorv32_amp

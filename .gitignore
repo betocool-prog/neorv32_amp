@@ -13,3 +13,12 @@ platform/
 
 # VS Code config
 /.vscode/
+
+# simulation
+/work/
+*.o
+wave.ghw
+adc_tb
+
+# measurement
+neorv32_amp.dwf3work
