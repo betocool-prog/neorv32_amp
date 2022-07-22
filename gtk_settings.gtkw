@@ -1,0 +1,62 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Fri Jul 22 14:04:42 2022
+[*]
+[dumpfile] "/home/betocool/Projects/neorv32_amp/wave.ghw"
+[dumpfile_mtime] "Fri Jul 22 14:03:02 2022"
+[dumpfile_size] 150078
+[savefile] "/home/betocool/Projects/neorv32_amp/gtk_settings.gtkw"
+[timestart] 10049000000
+[size] 1920 1043
+[pos] -1 -1
+*-28.684097 10534000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.adc_tb.
+[treeopen] top.adc_tb.uut.
+[sst_width] 221
+[signals_width] 200
+[sst_expanded] 1
+[sst_vpaned_height] 298
+@28
+top.adc_tb.adc_clk_o
+top.adc_tb.adc_rst_i
+@22
+#{top.adc_tb.data_reg[15:0]} top.adc_tb.data_reg[15] top.adc_tb.data_reg[14] top.adc_tb.data_reg[13] top.adc_tb.data_reg[12] top.adc_tb.data_reg[11] top.adc_tb.data_reg[10] top.adc_tb.data_reg[9] top.adc_tb.data_reg[8] top.adc_tb.data_reg[7] top.adc_tb.data_reg[6] top.adc_tb.data_reg[5] top.adc_tb.data_reg[4] top.adc_tb.data_reg[3] top.adc_tb.data_reg[2] top.adc_tb.data_reg[1] top.adc_tb.data_reg[0]
+#{top.adc_tb.bit_cnt[3:0]} top.adc_tb.bit_cnt[3] top.adc_tb.bit_cnt[2] top.adc_tb.bit_cnt[1] top.adc_tb.bit_cnt[0]
+@28
+top.adc_tb.adc_data_i
+top.adc_tb.adc_csn_o
+@200
+-
+@22
+#{top.adc_tb.data_cnt[3:0]} top.adc_tb.data_cnt[3] top.adc_tb.data_cnt[2] top.adc_tb.data_cnt[1] top.adc_tb.data_cnt[0]
+@c00022
+#{top.adc_tb.uut.data_reg[15:0]} top.adc_tb.uut.data_reg[15] top.adc_tb.uut.data_reg[14] top.adc_tb.uut.data_reg[13] top.adc_tb.uut.data_reg[12] top.adc_tb.uut.data_reg[11] top.adc_tb.uut.data_reg[10] top.adc_tb.uut.data_reg[9] top.adc_tb.uut.data_reg[8] top.adc_tb.uut.data_reg[7] top.adc_tb.uut.data_reg[6] top.adc_tb.uut.data_reg[5] top.adc_tb.uut.data_reg[4] top.adc_tb.uut.data_reg[3] top.adc_tb.uut.data_reg[2] top.adc_tb.uut.data_reg[1] top.adc_tb.uut.data_reg[0]
+@28
+top.adc_tb.uut.data_reg[15]
+top.adc_tb.uut.data_reg[14]
+top.adc_tb.uut.data_reg[13]
+top.adc_tb.uut.data_reg[12]
+top.adc_tb.uut.data_reg[11]
+top.adc_tb.uut.data_reg[10]
+top.adc_tb.uut.data_reg[9]
+top.adc_tb.uut.data_reg[8]
+top.adc_tb.uut.data_reg[7]
+top.adc_tb.uut.data_reg[6]
+top.adc_tb.uut.data_reg[5]
+top.adc_tb.uut.data_reg[4]
+top.adc_tb.uut.data_reg[3]
+top.adc_tb.uut.data_reg[2]
+top.adc_tb.uut.data_reg[1]
+top.adc_tb.uut.data_reg[0]
+@1401200
+-group_end
+@28
+top.adc_tb.uut.adc_clk_i
+top.adc_tb.uut.adc_clk_o
+top.adc_tb.uut.clk_ris_e
+top.adc_tb.uut.we
+@22
+#{top.adc_tb.bit_cnt[3:0]} top.adc_tb.bit_cnt[3] top.adc_tb.bit_cnt[2] top.adc_tb.bit_cnt[1] top.adc_tb.bit_cnt[0]
+[pattern_trace] 1
+[pattern_trace] 0

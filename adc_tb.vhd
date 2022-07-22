@@ -1,5 +1,5 @@
 -- #################################################################################################
--- # << ADC Testbench for the DE0 Nano												 >>            #
+-- # << ADC Testbench for the DE0 Nano												                       >>            #
 -- # ********************************************************************************************* #
 -- # BSD 3-Clause License                                                                          #
 -- #                                                                                               #
@@ -34,6 +34,7 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 entity adc_tb is
 
@@ -54,6 +55,33 @@ architecture behav of adc_tb is
     -- Timing
     constant clk_period: time := 20.34 ns;
 
+    -- Memory holding test data
+    type mem16_t is array (natural range <>) of std_ulogic_vector(15 downto 0); -- memory with 16-bit entries
+
+    constant test_data : mem16_t := (
+              x"0123",
+              x"4567",
+              x"89ab",
+              x"cdef",
+              x"fedc",
+              x"ba98",
+              x"7654",
+              x"3210",
+              x"0011",
+              x"2233",
+              x"4455",
+              x"6677",
+              x"8899",
+              x"aabb",
+              x"ccdd",
+              x"eeff"
+    );
+
+    -- Data output signals
+  	signal data_cnt 		:	unsigned(3 downto 0) := X"0";
+  	signal bit_cnt 		  :	unsigned(3 downto 0) := X"0";
+    signal data_reg     : std_ulogic_vector(15 downto 0) := x"0000";
+
 begin
     -- connecting testbench signals with adc.vhd
     UUT : entity work.adc port map (
@@ -66,6 +94,7 @@ begin
 	 adc_data_i => adc_data_i,
 	 adc_clk_o	=> adc_clk_o
     );
+
     
       -- Clock process definition
   clk_process: process
@@ -77,5 +106,26 @@ begin
   end process;
 
   adc_rst_i <= '1', '0' after 1 us;
+
+	-- On a clock falling edge :
+	-- - Push out new bit
+	-- - Increment the bit counter
+	process(adc_clk_o, adc_rst_i, adc_csn_o)
+	begin
+		if falling_edge(adc_clk_o) or falling_edge(adc_csn_o)then
+			if adc_rst_i = '1' then
+				bit_cnt <= X"0";
+			else
+        bit_cnt <= bit_cnt + 1;
+        data_reg(15 downto 1) <= data_reg(14 downto 0);
+        adc_data_i <= data_reg(15);
+        
+        if (bit_cnt = x"F") then
+          data_reg <= test_data(to_integer(data_cnt));
+          data_cnt <= data_cnt + 1;
+        end if;
+			end if;
+		end if;
+	end process;
     
 end behav ;

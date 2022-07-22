@@ -60,7 +60,7 @@ architecture adc_rtl of adc is
 	signal data_reg 	:	std_logic_vector(15 downto 0) := X"0000";
 
 	signal clk_ris_e	:	std_logic := '0';
-	signal we			:	std_logic := '0';
+	signal w_en			:	std_logic := '0';
 	
 begin
 	
@@ -82,7 +82,7 @@ begin
 	end process;
 
 	-- Set CSN low to start
-	process(adc_clk_i, adc_rst_i)
+	process(adc_clk_i, adc_rst_i, clk_div)
 	begin
 		if rising_edge(adc_clk_i) then
 			if adc_rst_i = '1' then
@@ -95,19 +95,14 @@ begin
 		end if;
 	end process;
 
-	
 	-- Detect rising edge on clock and 
 	-- generate a pulse
-	process(adc_clk_i, adc_rst_i)
+	process(adc_clk_i, clk_div)
 	begin
 		if rising_edge(adc_clk_i) then
-			if adc_rst_i = '1' then
-				clk_ris_e <= '0';
-			else
-				clk_ris_e <= '0';
-				if (clk_div = "1000") then
-					clk_ris_e <= '1';
-				end if;
+			clk_ris_e <= '0';
+			if (clk_div = "1000") then
+				clk_ris_e <= '1';
 			end if;
 		end if;
 	end process;
@@ -131,7 +126,7 @@ begin
 	end process;
 
 	-- Store the newly received 16bit word
-	process(adc_clk_i, adc_rst_i)
+	process(adc_clk_i, adc_rst_i, bit_cnt, clk_ris_e)
 	begin
 		if rising_edge(adc_clk_i) then
 			if adc_rst_i = '1' then
@@ -143,5 +138,18 @@ begin
 			end if;
 		end if;
 	end process;
+
+	-- Write Enable
+	-- process(adc_clk_i, bit_cnt, clk_ris_e)
+	-- begin
+	-- 	if rising_edge(adc_clk_i) then
+	-- 		w_en <= '0';
+	-- 		if ((bit_cnt = X"F") and (clk_ris_e = '1')) then
+	-- 			w_en <= '1';
+	-- 		end if;
+	-- 	end if;
+	-- end process;
+
+	w_en <= '1' when (((bit_cnt = X"F") and (clk_ris_e = '1'))) else '0';
 
 end architecture; --adc
