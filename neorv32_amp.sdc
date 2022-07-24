@@ -37,3 +37,5 @@
 create_clock -period 20.0  [get_ports clk_i]
 derive_pll_clocks
 derive_clock_uncertainty
+# Both PLL clocks are considered independent. The get synchronised inside the ADC module
+set_clock_groups -asynchronous -group [get_clocks {u0|altpll_0|sd1|pll7|clk[0]}] -group [get_clocks {u0|altpll_1|sd1|pll7|clk[0]}]

@@ -43,6 +43,9 @@ entity adc is
 	 adc_clk_i		: 	in std_logic; -- 49.152 MHz
 	 adc_rst_i		:	in std_logic;
 
+	 -- CPU clock input
+	 adc_cpu_clk_i	: 	in std_logic;
+
 	 -- Parallel data interface to TOP level (SLINK)
 	 adc_par_dat_o	:	out std_ulogic_vector(15 downto 0);
 	 adc_slink_we_o	:	out std_logic	:= '0';
@@ -65,8 +68,11 @@ architecture adc_rtl of adc is
 	signal data_reg_i	:	std_ulogic_vector(15 downto 0) := X"0000";
 	signal data_reg 	:	std_ulogic_vector(15 downto 0) := X"0000";
 
-	signal clk_ris_e	:	std_logic := '0';
-	-- signal w_en			:	std_logic := '0';
+	signal clk_spi_0		:	std_logic := '0';
+	signal clk_spi_1		:	std_logic := '0';
+	signal clk_spi_2		:	std_logic := '0';
+	signal clk_spi_prev		:	std_logic := '0';
+	signal clk_ris_e		:	std_logic := '0';
 	
 begin
 	
@@ -101,13 +107,18 @@ begin
 		end if;
 	end process;
 
+	-- From here on we process data from the main CPU clock domain
 	-- Detect rising edge on clock and 
 	-- generate a pulse
-	process(adc_clk_i, clk_div)
+
+	process(adc_cpu_clk_i)
 	begin
-		if rising_edge(adc_clk_i) then
+		if rising_edge(adc_cpu_clk_i) then
+			clk_spi_2 <= clk_div(3);
+			clk_spi_1 <= clk_spi_2;
+			clk_spi_0 <= clk_spi_1;
 			clk_ris_e <= '0';
-			if (clk_div = "1000") then
+			if ((clk_spi_1 = '1') and (clk_spi_0 = '0'))then
 				clk_ris_e <= '1';
 			end if;
 		end if;
@@ -116,13 +127,13 @@ begin
 	-- On a clock rising edge:
 	-- - Grab a new bit
 	-- - Increment the bit counter
-	process(adc_clk_i, adc_rst_i)
+	process(adc_cpu_clk_i, adc_rst_i)
 	begin
 		if adc_rst_i = '1' then
 			bit_cnt <= X"0";
 			data_reg_i <= X"0000";
 		else
-			if rising_edge(adc_clk_i) then
+			if rising_edge(adc_cpu_clk_i) then
 					if (clk_ris_e = '1') then
 						bit_cnt <= bit_cnt + 1;
 						data_reg_i(15 downto 1) <= data_reg_i(14 downto 0);
@@ -133,32 +144,20 @@ begin
 	end process;
 
 	-- Store the newly received 16bit word
-	process(adc_clk_i, adc_rst_i, bit_cnt, clk_ris_e)
+	process(adc_cpu_clk_i, adc_rst_i, bit_cnt, clk_ris_e)
 	begin
 		if adc_rst_i = '1' then
 			data_reg <= X"0000";
 		else
-			if rising_edge(adc_clk_i) then
+			if rising_edge(adc_cpu_clk_i) then
 				if ((bit_cnt = X"0") and (clk_ris_e = '1')) then
 					data_reg <= data_reg_i;
 				end if;
 			end if;
 		end if;
 	end process;
-
-	-- Write Enable
-	-- process(adc_clk_i)
-	-- begin
-	-- 	if rising_edge(adc_clk_i) then
-	-- 		adc_slink_we_o <= '0';
-	-- 		if ((bit_cnt = X"F") and (clk_ris_e = '1') and (adc_slink_rdy_i = '1')) then
-	-- 			adc_slink_we_o <= '1';
-	-- 			adc_par_dat_o <= data_reg;
-	-- 		end if;
-	-- 	end if;
-	-- end process;
 	
-	-- Write enable signal
+	-- -- Write enable signal
 	adc_slink_we_o <= '1' when ((bit_cnt = X"F") and (clk_ris_e = '1') and (adc_slink_rdy_i = '1')) else '0';
 	adc_par_dat_o <= data_reg;
 	adc_slink_lst_o <= '0';

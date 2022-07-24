@@ -44,6 +44,7 @@ architecture behav of adc_tb is
 
     -- Inputs
     signal adc_clk_i      : std_logic; 
+    signal cpu_clk_i      : std_logic; 
     signal adc_rst_i      : std_logic;
     signal adc_data_i     : std_logic;
     signal adc_slink_rdy_i:	std_logic;
@@ -58,6 +59,7 @@ architecture behav of adc_tb is
 
     -- Timing
     constant clk_period: time := 20.34 ns;
+    constant clk_cpu_period: time := 10 ns;
 
     -- Memory holding test data
     type mem16_t is array (natural range <>) of std_ulogic_vector(15 downto 0); -- memory with 16-bit entries
@@ -92,6 +94,7 @@ begin
 	 -- ADC --
 	 -- Interface to the TOP level
 	 adc_clk_i	      => adc_clk_i,
+	 adc_cpu_clk_i	  => cpu_clk_i,
 	 adc_rst_i	      => adc_rst_i,
 	 adc_csn_o	      => adc_csn_o,
 	 adc_data_o	      => adc_data_o,
@@ -111,6 +114,14 @@ begin
     wait for clk_period/2;
     adc_clk_i <= '1';
     wait for clk_period/2;
+  end process;  
+  
+  cpu_clk_process: process
+  begin
+    cpu_clk_i <= '0';
+    wait for clk_cpu_period/2;
+    cpu_clk_i <= '1';
+    wait for clk_cpu_period/2;
   end process;
 
   adc_rst_i <= '1', '0' after 1 us;

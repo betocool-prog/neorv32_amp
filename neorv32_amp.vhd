@@ -101,6 +101,9 @@ component adc is
 	 adc_clk_i	: 	in std_logic;
 	 adc_rst_i	:	in std_logic;
 
+	 -- CPU clock input
+	 adc_cpu_clk_i	: 	in std_logic;
+
 	 -- Parallel data interface to TOP level (SLINK)
 	 adc_par_dat_o	:	out std_ulogic_vector(15 downto 0);
 	 adc_slink_we_o	:	out std_logic	:= '0';
@@ -132,6 +135,15 @@ end component adc;
   signal slink_rx_val_i : std_ulogic_vector(7 downto 0); -- valid input
   signal slink_rx_rdy_o : std_ulogic_vector(7 downto 0); -- ready to receive
   signal slink_rx_lst_i : std_ulogic_vector(7 downto 0); -- last data of packet
+
+  -- ADC input data registers
+  signal adc_par_dat_o    : std_ulogic_vector(15 downto 0) := X"0000";
+  signal adc_slink_we_o	  : std_ulogic := '0';
+  signal adc_slink_lst_o  : std_ulogic := '0';
+  signal adc_slink_rdy_i  : std_ulogic := '1';
+
+  -- Helper sync signals
+  signal adc_slink_buf    : std_ulogic_vector(2 downto 0) := "000";
 
 begin
 
@@ -230,19 +242,24 @@ u0 : component platform
 adc0: component adc
 		port map (
 			 adc_clk_i	      => pll1_clk,
+       adc_cpu_clk_i    => pll0_clk,
 			 adc_rst_i	      => reset,
 			 adc_csn_o	      => adc_csn_o,
 			 adc_data_o	      => adc_data_o,
 			 adc_data_i	      => adc_data_i,
 			 adc_clk_o	      => test,
-       adc_par_dat_o	  => slink_rx_dat_i(0)(15 downto 0),
-       adc_slink_we_o	  => slink_rx_val_i(0),
-       adc_slink_lst_o  => slink_rx_lst_i(0), -- always '0', we stream continuously.
-       adc_slink_rdy_i  => slink_rx_rdy_o(0)
+       adc_par_dat_o	  => adc_par_dat_o,
+       adc_slink_we_o	  => adc_slink_we_o,
+       adc_slink_lst_o  => adc_slink_lst_o, -- always '0', we stream continuously.
+       adc_slink_rdy_i  => adc_slink_rdy_i
 		);
   
     -- ADC Connections to SLINK
+    slink_rx_dat_i(0)(15 downto 0) <= adc_par_dat_o;
     slink_rx_dat_i(0)(31 downto 16) <= X"0000";
+    slink_rx_val_i(0) <= adc_slink_we_o;
+    adc_slink_rdy_i <= slink_rx_rdy_o(0);
+    slink_rx_lst_i(0) <= adc_slink_lst_o;
 
   
   -- GPIO output --
