@@ -14,8 +14,16 @@ platform/
 # VS Code config
 /.vscode/
 
+# Software
+/sw/*.bak
+/sw/*.elf
+/sw/*.bin
+/sw/*.hex
+/sw/*.asm
+/sw/*.vhd
+
 # simulation
-/work/
+/build/
 *.o
 wave.ghw
 adc_tb

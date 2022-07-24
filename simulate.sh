@@ -5,12 +5,12 @@
 set -x
 
 # Add files to the project
-ghdl -i --std=08 --workdir=work --work=work ./adc.vhd
-ghdl -i --std=08 --workdir=work --work=work ./adc_tb.vhd
+ghdl -i --std=08 --workdir=build --work=work ./adc.vhd
+ghdl -i --std=08 --workdir=build --work=work ./adc_tb.vhd
 
 # Make: Analysis and elaboration
-ghdl -m --std=08 --workdir=work --work=work adc_tb
+ghdl -m --std=08 --workdir=build --work=work adc_tb
 
 # Run the simulation
-ghdl -r --std=08 --workdir=work --work=work adc_tb --stop-time=150us --wave=wave.ghw
+ghdl -r --std=08 --workdir=build --work=work adc_tb --stop-time=150us --wave=wave.ghw
 
