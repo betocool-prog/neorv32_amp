@@ -49,23 +49,25 @@ entity neorv32_amp is
     -- Global control --
     clk_i       : in  std_ulogic; -- global clock, rising edge
     rstn_i      : in  std_ulogic; -- global reset, low-active, async
+    
     -- GPIO --
     gpio_o      : out std_ulogic_vector(7 downto 0); -- parallel output
+    
     -- UART0 --
     uart0_txd_o : out std_ulogic; -- UART0 send data
     uart0_rxd_i : in  std_ulogic;  -- UART0 receive data
+    
     -- XIP --
     xip_clk_o   : out std_ulogic; -- serial clock
     xip_sdo_o   : out std_ulogic; -- controller data output
     xip_sdi_i   : in  std_ulogic; -- device data input
     xip_csn_o   : out std_ulogic;	 -- chip-select, low-active
-	 -- 
-	 
-	 -- ADC --
-	 adc_csn_o	:	out std_logic;
-	 adc_data_o	:	out std_logic;
-	 adc_data_i	:	in std_logic;
-	 adc_clk_o	:	out std_logic;
+
+    -- ADC --
+    adc_csn_o	  :	out std_logic;  -- Chip Select (inv)
+    adc_data_o	:	out std_logic;  -- Serial data out (Channel select)
+    adc_data_i	:	in  std_logic;  -- Serial data in
+    adc_clk_o	  :	out std_logic;  -- Serial clock
 	 
 	 -- Test --
 	 -- Pin D3
@@ -98,6 +100,12 @@ component adc is
 	 -- Interface to the TOP level
 	 adc_clk_i	: 	in std_logic;
 	 adc_rst_i	:	in std_logic;
+
+	 -- Parallel data interface to TOP level (SLINK)
+	 adc_par_dat_o	:	out std_ulogic_vector(15 downto 0);
+	 adc_slink_we_o	:	out std_logic	:= '0';
+	 adc_slink_lst_o:	out std_logic	:= '0';
+	 adc_slink_rdy_i:	in std_logic;
 	 
 	 -- SPI interface to chip --
 	 adc_csn_o	:	out std_logic;
@@ -118,7 +126,12 @@ end component adc;
   
   -- NEORV32 LEDs
   signal con_gpio_o : std_ulogic_vector(63 downto 0);
-
+    
+  -- RX stream interfaces (available if SLINK_NUM_RX > 0) --
+  signal slink_rx_dat_i : sdata_8x32_t;                  -- input data
+  signal slink_rx_val_i : std_ulogic_vector(7 downto 0); -- valid input
+  signal slink_rx_rdy_o : std_ulogic_vector(7 downto 0); -- ready to receive
+  signal slink_rx_lst_i : std_ulogic_vector(7 downto 0); -- last data of packet
 
 begin
 
@@ -129,53 +142,72 @@ begin
     -- General --
     CLOCK_FREQUENCY              => CLOCK_FREQUENCY,   -- clock frequency of clk_i in Hz
     INT_BOOTLOADER_EN            => true,              -- boot configuration: true = boot explicit bootloader; false = boot from int/ext (I)MEM
+    
     -- RISC-V CPU Extensions --
     CPU_EXTENSION_RISCV_B        => true,              -- implement bit-manipulation extension?
     CPU_EXTENSION_RISCV_C        => true,              -- implement compressed extension?
     CPU_EXTENSION_RISCV_M        => true,              -- implement mul/div extension?
     CPU_EXTENSION_RISCV_Zicsr    => true,              -- implement CSR system?
     CPU_EXTENSION_RISCV_Zicntr   => true,              -- implement base counters?
-	 CPU_EXTENSION_RISCV_Zfinx    => true,  				 -- implement 32-bit floating-point extension (using INT regs!)
-	 -- Tuning Options --
-	 FAST_MUL_EN                  => true,  				 -- use DSPs for M extension's multiplier
-    FAST_SHIFT_EN                => true,  				 -- use barrel shifter for shift operations
+    CPU_EXTENSION_RISCV_Zfinx    => true,  				     -- implement 32-bit floating-point extension (using INT regs!)
+    
+    -- Tuning Options --
+    FAST_MUL_EN                  => true,  				     -- use DSPs for M extension's multiplier
+    FAST_SHIFT_EN                => true,  				     -- use barrel shifter for shift operations
+    
     -- Internal Instruction memory --
     MEM_INT_IMEM_EN              => false,             -- implement processor-internal instruction memory
+    
     -- Internal Data memory --
     MEM_INT_DMEM_EN              => true,              -- implement processor-internal data memory
     MEM_INT_DMEM_SIZE            => MEM_INT_DMEM_SIZE, -- size of processor-internal data memory in bytes
+    
     -- Processor peripherals --
     IO_GPIO_EN                   => true,              -- implement general purpose input/output port unit (GPIO)?
     IO_MTIME_EN                  => true,              -- implement machine system timer (MTIME)?
     IO_UART0_EN                  => true,              -- implement primary universal asynchronous receiver/transmitter (UART0)?
-	 -- XiP Peripheral, we'll do without the IMEM
-	 IO_XIP_EN							=> true,					 -- implement execute in place module (XIP)?
-	     -- Internal Instruction Cache (iCACHE) --
-    ICACHE_EN                    => true,  -- implement instruction cache
-    ICACHE_NUM_BLOCKS            => 8,      -- i-cache: number of blocks (min 1), has to be a power of 2
-    ICACHE_BLOCK_SIZE            => 256,     -- i-cache: block size in bytes (min 4), has to be a power of 2
-    ICACHE_ASSOCIATIVITY         => 1      -- i-cache: associativity / number of sets (1=direct_mapped), has to be a power of 2
-	     -- External memory interface (WISHBONE) --
+    
+    -- XiP Peripheral, we'll do without the IMEM
+    IO_XIP_EN							=> true,					           -- implement execute in place module (XIP)?
+    
+    -- SLink RX Interface, we'll get the data from ADC here
+    -- Stream link interface (SLINK) --
+    SLINK_NUM_RX                 => 1,                 -- number of TX links (0..8)
+    SLINK_RX_FIFO                => 256,               -- RX fifo depth, has to be a power of two
+    
+    -- Internal Instruction Cache (iCACHE) --
+    ICACHE_EN                    => true,              -- implement instruction cache
+    ICACHE_NUM_BLOCKS            => 8,                 -- i-cache: number of blocks (min 1), has to be a power of 2
+    ICACHE_BLOCK_SIZE            => 256,               -- i-cache: block size in bytes (min 4), has to be a power of 2
+    ICACHE_ASSOCIATIVITY         => 1                  -- i-cache: associativity / number of sets (1=direct_mapped), has to be a power of 2
+    
+    -- External memory interface (WISHBONE) --
     -- MEM_EXT_EN                   => true  -- implement external memory bus interface?
 
   )
   port map (
     -- Global control --
-    clk_i       => pll0_clk,       -- global clock, rising edge
-    rstn_i      => resetn,      -- global reset, low-active, async
+    clk_i       => pll0_clk,                           -- global clock, rising edge
+    rstn_i      => resetn,                             -- global reset, low-active, async
 
     -- GPIO (available if IO_GPIO_EN = true) --
-    gpio_o      => con_gpio_o,  -- parallel output
+    gpio_o      => con_gpio_o,                         -- parallel output
 
     -- primary UART0 (available if IO_UART0_EN = true) --
-    uart0_txd_o => uart0_txd_o, -- UART0 send data
-    uart0_rxd_i => uart0_rxd_i,  -- UART0 receive data
+    uart0_txd_o => uart0_txd_o,                        -- UART0 send data
+    uart0_rxd_i => uart0_rxd_i,                        -- UART0 receive data
+
+    -- RX stream interfaces (available if SLINK_NUM_RX > 0) --
+    slink_rx_dat_i => slink_rx_dat_i,                  -- input data
+    slink_rx_val_i => slink_rx_val_i,                  -- valid input
+    slink_rx_rdy_o => slink_rx_rdy_o,                  -- ready to receive
+    slink_rx_lst_i => slink_rx_lst_i,                  -- last data of packet
 
     -- XIP (execute in place via SPI) signals (available if IO_XIP_EN = true) --
-    xip_clk_o => xip_clk_o,		-- SPI serial clock
-    xip_sdo_o => xip_sdo_o,		-- controller data out, peripheral data in
-    xip_sdi_i => xip_sdi_i,		-- controller data in, peripheral data out
-    xip_csn_o => xip_csn_o			-- chip-select
+    xip_clk_o => xip_clk_o,		                         -- SPI serial clock
+    xip_sdo_o => xip_sdo_o,		                         -- controller data out, peripheral data in
+    xip_sdi_i => xip_sdi_i,		                         -- controller data in, peripheral data out
+    xip_csn_o => xip_csn_o			                       -- chip-select
   );
  
   -- QSys Components ----------------------------------------------------------------
@@ -197,14 +229,22 @@ u0 : component platform
 
 adc0: component adc
 		port map (
-			 adc_clk_i	=>	pll1_clk,
-			 adc_rst_i	=> reset,
-			 adc_csn_o	=> adc_csn_o,
-			 adc_data_o	=> adc_data_o,
-			 adc_data_i	=> adc_data_i,
-			 adc_clk_o	=> test
+			 adc_clk_i	      => pll1_clk,
+			 adc_rst_i	      => reset,
+			 adc_csn_o	      => adc_csn_o,
+			 adc_data_o	      => adc_data_o,
+			 adc_data_i	      => adc_data_i,
+			 adc_clk_o	      => test,
+       adc_par_dat_o	  => slink_rx_dat_i(0)(15 downto 0),
+       adc_slink_we_o	  => slink_rx_val_i(0),
+       adc_slink_lst_o  => slink_rx_lst_i(0), -- always '0', we stream continuously.
+       adc_slink_rdy_i  => slink_rx_rdy_o(0)
 		);
+  
+    -- ADC Connections to SLINK
+    slink_rx_dat_i(0)(31 downto 16) <= X"0000";
 
+  
   -- GPIO output --
   gpio_o <= con_gpio_o(7 downto 0);
   reset <= not resetn;

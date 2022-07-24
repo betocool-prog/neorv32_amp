@@ -43,14 +43,18 @@ end adc_tb;
 architecture behav of adc_tb is
 
     -- Inputs
-    signal adc_clk_i: std_logic; 
-    signal adc_rst_i : std_logic;
-    signal adc_data_i : std_logic;
+    signal adc_clk_i      : std_logic; 
+    signal adc_rst_i      : std_logic;
+    signal adc_data_i     : std_logic;
+    signal adc_slink_rdy_i:	std_logic;
 
     -- Outputs 
-    signal adc_csn_o: std_logic; 
-    signal adc_data_o : std_logic;
-    signal adc_clk_o : std_logic;
+    signal adc_csn_o      : std_logic; 
+    signal adc_data_o     : std_logic;
+    signal adc_clk_o      : std_logic;
+    signal adc_par_dat_o	:	std_ulogic_vector(15 downto 0);
+    signal adc_slink_we_o	:	std_logic;
+    signal adc_slink_lst_o:	std_logic;
 
     -- Timing
     constant clk_period: time := 20.34 ns;
@@ -87,13 +91,17 @@ begin
     UUT : entity work.adc port map (
 	 -- ADC --
 	 -- Interface to the TOP level
-	 adc_clk_i	=> adc_clk_i,
-	 adc_rst_i	=> adc_rst_i,
-	 adc_csn_o	=> adc_csn_o,
-	 adc_data_o	=> adc_data_o,
-	 adc_data_i => adc_data_i,
-	 adc_clk_o	=> adc_clk_o
-    );
+	 adc_clk_i	      => adc_clk_i,
+	 adc_rst_i	      => adc_rst_i,
+	 adc_csn_o	      => adc_csn_o,
+	 adc_data_o	      => adc_data_o,
+	 adc_data_i       => adc_data_i,
+	 adc_clk_o	      => adc_clk_o,
+	 adc_par_dat_o	  => adc_par_dat_o,
+	 adc_slink_we_o	  => adc_slink_we_o,
+	 adc_slink_lst_o  => adc_slink_lst_o,
+	 adc_slink_rdy_i  => adc_slink_rdy_i
+  );
 
     
       -- Clock process definition
@@ -127,5 +135,7 @@ begin
 			end if;
 		end if;
 	end process;
+
+  adc_slink_rdy_i <= '1';
     
 end behav ;

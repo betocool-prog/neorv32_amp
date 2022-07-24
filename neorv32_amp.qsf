@@ -150,6 +150,8 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to adc_clk_o
 set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to adc_csn_o
 set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to adc_data_i
 set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to adc_data_o
+set_location_assignment PIN_D3 -to test_d3_o
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to test_d3_o
 set_global_assignment -name QSYS_FILE platform.qsys
 set_global_assignment -name SDC_FILE neorv32_amp.sdc
 set_global_assignment -name VHDL_FILE ../neorv32/rtl/core/mem/neorv32_imem.default.vhd
@@ -193,9 +195,7 @@ set_global_assignment -name VHDL_FILE ../neorv32/rtl/core/neorv32_busswitch.vhd
 set_global_assignment -name VHDL_FILE ../neorv32/rtl/core/neorv32_bus_keeper.vhd
 set_global_assignment -name VHDL_FILE ../neorv32/rtl/core/neorv32_boot_rom.vhd
 set_global_assignment -name VHDL_FILE ../neorv32/rtl/core/neorv32_application_image.vhd
-set_global_assignment -name VHDL_FILE neorv32_amp.vhd
 set_global_assignment -name VHDL_FILE neorv32_bootloader_image.vhd
 set_global_assignment -name VHDL_FILE adc.vhd
-set_location_assignment PIN_D3 -to test_d3_o
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to test_d3_o
+set_global_assignment -name VHDL_FILE neorv32_amp.vhd
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

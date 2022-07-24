@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
-[*] Fri Jul 22 14:04:42 2022
+[*] Sat Jul 23 06:19:42 2022
 [*]
 [dumpfile] "/home/betocool/Projects/neorv32_amp/wave.ghw"
-[dumpfile_mtime] "Fri Jul 22 14:03:02 2022"
-[dumpfile_size] 150078
+[dumpfile_mtime] "Sat Jul 23 06:18:47 2022"
+[dumpfile_size] 150570
 [savefile] "/home/betocool/Projects/neorv32_amp/gtk_settings.gtkw"
-[timestart] 10049000000
+[timestart] 0
 [size] 1920 1043
 [pos] -1 -1
-*-28.684097 10534000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-31.269161 3774000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.adc_tb.
 [treeopen] top.adc_tb.uut.
@@ -17,6 +17,8 @@
 [signals_width] 200
 [sst_expanded] 1
 [sst_vpaned_height] 298
+@200
+-ADC TB
 @28
 top.adc_tb.adc_clk_o
 top.adc_tb.adc_rst_i
@@ -28,6 +30,7 @@ top.adc_tb.adc_data_i
 top.adc_tb.adc_csn_o
 @200
 -
+-ADC UUT
 @22
 #{top.adc_tb.data_cnt[3:0]} top.adc_tb.data_cnt[3] top.adc_tb.data_cnt[2] top.adc_tb.data_cnt[1] top.adc_tb.data_cnt[0]
 @c00022
@@ -54,9 +57,13 @@ top.adc_tb.uut.data_reg[0]
 @28
 top.adc_tb.uut.adc_clk_i
 top.adc_tb.uut.adc_clk_o
-top.adc_tb.uut.clk_ris_e
-top.adc_tb.uut.we
 @22
-#{top.adc_tb.bit_cnt[3:0]} top.adc_tb.bit_cnt[3] top.adc_tb.bit_cnt[2] top.adc_tb.bit_cnt[1] top.adc_tb.bit_cnt[0]
+#{top.adc_tb.uut.bit_cnt[3:0]} top.adc_tb.uut.bit_cnt[3] top.adc_tb.uut.bit_cnt[2] top.adc_tb.uut.bit_cnt[1] top.adc_tb.uut.bit_cnt[0]
+@28
+top.adc_tb.uut.clk_ris_e
+@29
+top.adc_tb.uut.w_en
+@22
+#{top.adc_tb.uut.adc_par_dat_o[15:0]} top.adc_tb.uut.adc_par_dat_o[15] top.adc_tb.uut.adc_par_dat_o[14] top.adc_tb.uut.adc_par_dat_o[13] top.adc_tb.uut.adc_par_dat_o[12] top.adc_tb.uut.adc_par_dat_o[11] top.adc_tb.uut.adc_par_dat_o[10] top.adc_tb.uut.adc_par_dat_o[9] top.adc_tb.uut.adc_par_dat_o[8] top.adc_tb.uut.adc_par_dat_o[7] top.adc_tb.uut.adc_par_dat_o[6] top.adc_tb.uut.adc_par_dat_o[5] top.adc_tb.uut.adc_par_dat_o[4] top.adc_tb.uut.adc_par_dat_o[3] top.adc_tb.uut.adc_par_dat_o[2] top.adc_tb.uut.adc_par_dat_o[1] top.adc_tb.uut.adc_par_dat_o[0]
 [pattern_trace] 1
 [pattern_trace] 0

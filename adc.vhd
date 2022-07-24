@@ -40,14 +40,20 @@ entity adc is
   port (
 	 -- ADC --
 	 -- Interface to the TOP level
-	 adc_clk_i	: 	in std_logic; -- 49.152 MHz
-	 adc_rst_i	:	in std_logic;
+	 adc_clk_i		: 	in std_logic; -- 49.152 MHz
+	 adc_rst_i		:	in std_logic;
+
+	 -- Parallel data interface to TOP level (SLINK)
+	 adc_par_dat_o	:	out std_ulogic_vector(15 downto 0);
+	 adc_slink_we_o	:	out std_logic	:= '0';
+	 adc_slink_lst_o:	out std_logic	:= '0';
+	 adc_slink_rdy_i:	in std_logic;
 	 
 	 -- SPI interface to chip --
-	 adc_csn_o	:	out std_logic	:= '1';
-	 adc_data_o	:	out std_logic	:= '0';
-	 adc_data_i	:	in std_logic;
-	 adc_clk_o	:	out std_logic	:= '1'
+	 adc_csn_o		:	out std_logic	:= '1';
+	 adc_data_o		:	out std_logic	:= '0';
+	 adc_data_i		:	in std_logic;
+	 adc_clk_o		:	out std_logic	:= '1'
   );
 end entity;
 
@@ -56,11 +62,11 @@ architecture adc_rtl of adc is
 	signal clk_div		: 	unsigned(3 downto 0) := "0000";
 	signal bit_cnt 		:	unsigned(3 downto 0) := X"0";
 
-	signal data_reg_i	:	std_logic_vector(15 downto 0) := X"0000";
-	signal data_reg 	:	std_logic_vector(15 downto 0) := X"0000";
+	signal data_reg_i	:	std_ulogic_vector(15 downto 0) := X"0000";
+	signal data_reg 	:	std_ulogic_vector(15 downto 0) := X"0000";
 
 	signal clk_ris_e	:	std_logic := '0';
-	signal w_en			:	std_logic := '0';
+	-- signal w_en			:	std_logic := '0';
 	
 begin
 	
@@ -72,10 +78,10 @@ begin
 	adc_clk_o <= clk_div(3);
 	process(adc_clk_i, adc_rst_i)
 	begin
-		if rising_edge(adc_clk_i) then
-			if adc_rst_i = '1' then
-				clk_div <= "0000";
-			else
+		if adc_rst_i = '1' then
+			clk_div <= "0000";
+		else
+			if rising_edge(adc_clk_i) then
 				clk_div <= clk_div + 1;
 			end if;
 		end if;
@@ -84,10 +90,10 @@ begin
 	-- Set CSN low to start
 	process(adc_clk_i, adc_rst_i, clk_div)
 	begin
-		if rising_edge(adc_clk_i) then
-			if adc_rst_i = '1' then
-				adc_csn_o <= '1';
-			else
+		if adc_rst_i = '1' then
+			adc_csn_o <= '1';
+		else
+			if rising_edge(adc_clk_i) then
 				if (clk_div = "0011") then
 					adc_csn_o <= '0';
 				end if;
@@ -112,26 +118,27 @@ begin
 	-- - Increment the bit counter
 	process(adc_clk_i, adc_rst_i)
 	begin
-		if rising_edge(adc_clk_i) then
-			if adc_rst_i = '1' then
-				bit_cnt <= X"0";
-			else
-				if (clk_ris_e = '1') then
-					bit_cnt <= bit_cnt + 1;
-					data_reg_i(15 downto 1) <= data_reg_i(14 downto 0);
-					data_reg_i(0) <= adc_data_i;
+		if adc_rst_i = '1' then
+			bit_cnt <= X"0";
+			data_reg_i <= X"0000";
+		else
+			if rising_edge(adc_clk_i) then
+					if (clk_ris_e = '1') then
+						bit_cnt <= bit_cnt + 1;
+						data_reg_i(15 downto 1) <= data_reg_i(14 downto 0);
+						data_reg_i(0) <= adc_data_i;
+					end if;
 				end if;
 			end if;
-		end if;
 	end process;
 
 	-- Store the newly received 16bit word
 	process(adc_clk_i, adc_rst_i, bit_cnt, clk_ris_e)
 	begin
-		if rising_edge(adc_clk_i) then
-			if adc_rst_i = '1' then
-				data_reg <= X"0000";
-			else
+		if adc_rst_i = '1' then
+			data_reg <= X"0000";
+		else
+			if rising_edge(adc_clk_i) then
 				if ((bit_cnt = X"0") and (clk_ris_e = '1')) then
 					data_reg <= data_reg_i;
 				end if;
@@ -140,16 +147,20 @@ begin
 	end process;
 
 	-- Write Enable
-	-- process(adc_clk_i, bit_cnt, clk_ris_e)
+	-- process(adc_clk_i)
 	-- begin
 	-- 	if rising_edge(adc_clk_i) then
-	-- 		w_en <= '0';
-	-- 		if ((bit_cnt = X"F") and (clk_ris_e = '1')) then
-	-- 			w_en <= '1';
+	-- 		adc_slink_we_o <= '0';
+	-- 		if ((bit_cnt = X"F") and (clk_ris_e = '1') and (adc_slink_rdy_i = '1')) then
+	-- 			adc_slink_we_o <= '1';
+	-- 			adc_par_dat_o <= data_reg;
 	-- 		end if;
 	-- 	end if;
 	-- end process;
-
-	w_en <= '1' when (((bit_cnt = X"F") and (clk_ris_e = '1'))) else '0';
+	
+	-- Write enable signal
+	adc_slink_we_o <= '1' when ((bit_cnt = X"F") and (clk_ris_e = '1') and (adc_slink_rdy_i = '1')) else '0';
+	adc_par_dat_o <= data_reg;
+	adc_slink_lst_o <= '0';
 
 end architecture; --adc
