@@ -1,22 +1,21 @@
 [*]
 [*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
-[*] Wed Jul 27 06:53:04 2022
+[*] Wed Jul 27 07:54:32 2022
 [*]
 [dumpfile] "/home/betocool/Projects/neorv32_amp/cpu.ghw"
-[dumpfile_mtime] "Wed Jul 27 06:05:38 2022"
-[dumpfile_size] 6311926
+[dumpfile_mtime] "Wed Jul 27 07:48:07 2022"
+[dumpfile_size] 7012093
 [savefile] "/home/betocool/Projects/neorv32_amp/cpu_gtk_settings.gtkw"
-[timestart] 14033600000
+[timestart] 0
 [size] 1920 1043
 [pos] -1 -1
-*-26.708765 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-33.996475 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.neorv32_amp_tb.
 [treeopen] top.neorv32_amp_tb.uut.
+[treeopen] top.neorv32_amp_tb.uut.adc0.
 [treeopen] top.neorv32_amp_tb.uut.neorv32_top_inst.neorv32_wishbone_inst_true.neorv32_wishbone_inst.
 [treeopen] top.neorv32_amp_tb.uut.neorv32_top_inst.neorv32_wishbone_inst_true.neorv32_wishbone_inst.ctrl.
-[treeopen] top.neorv32_amp_tb.uut.simulate_adc.
-[treeopen] top.neorv32_amp_tb.uut.simulate_adc.adc0.
 [sst_width] 353
 [signals_width] 350
 [sst_expanded] 1
@@ -31,17 +30,10 @@ top.neorv32_amp_tb.uut.uart0_txd_o
 -
 -ADC
 @28
-top.neorv32_amp_tb.uut.simulate_adc.adc0.adc_clk_o
-@22
-#{top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[15:0]} top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[15] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[14] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[13] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[12] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[11] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[10] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[9] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[8] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[7] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[6] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[5] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[4] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[3] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[2] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[1] top.neorv32_amp_tb.uut.simulate_adc.adc0.data_reg[0]
-#{top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[31:0]} top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[31] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[30] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[29] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[28] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[27] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[26] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[25] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[24] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[23] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[22] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[21] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[20] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[19] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[18] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[17] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[16] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[15] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[14] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[13] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[12] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[11] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[10] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[9] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[8] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[7] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[6] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[5] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[4] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[3] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[2] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[1] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_adr_i[0]
-#{top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[31:0]} top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[31] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[30] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[29] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[28] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[27] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[26] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[25] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[24] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[23] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[22] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[21] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[20] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[19] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[18] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[17] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[16] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[15] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[14] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[13] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[12] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[11] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[10] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[9] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[8] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[7] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[6] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[5] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[4] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[3] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[2] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[1] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_i[0]
-#{top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[31:0]} top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[31] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[30] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[29] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[28] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[27] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[26] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[25] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[24] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[23] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[22] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[21] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[20] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[19] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[18] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[17] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[16] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[15] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[14] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[13] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[12] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[11] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[10] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[9] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[8] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[7] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[6] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[5] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[4] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[3] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[2] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[1] top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_dat_o[0]
-@29
-top.neorv32_amp_tb.uut.simulate_adc.adc0.valid_req
-@28
-top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_ack_o
-top.neorv32_amp_tb.uut.simulate_adc.adc0.wb_err_o
+top.neorv32_amp_tb.uut.adc0.adc_clk_o
+top.neorv32_amp_tb.uut.adc0.adc_rst_i
+@23
+#{top.neorv32_amp_tb.uut.adc0.data_reg[15:0]} top.neorv32_amp_tb.uut.adc0.data_reg[15] top.neorv32_amp_tb.uut.adc0.data_reg[14] top.neorv32_amp_tb.uut.adc0.data_reg[13] top.neorv32_amp_tb.uut.adc0.data_reg[12] top.neorv32_amp_tb.uut.adc0.data_reg[11] top.neorv32_amp_tb.uut.adc0.data_reg[10] top.neorv32_amp_tb.uut.adc0.data_reg[9] top.neorv32_amp_tb.uut.adc0.data_reg[8] top.neorv32_amp_tb.uut.adc0.data_reg[7] top.neorv32_amp_tb.uut.adc0.data_reg[6] top.neorv32_amp_tb.uut.adc0.data_reg[5] top.neorv32_amp_tb.uut.adc0.data_reg[4] top.neorv32_amp_tb.uut.adc0.data_reg[3] top.neorv32_amp_tb.uut.adc0.data_reg[2] top.neorv32_amp_tb.uut.adc0.data_reg[1] top.neorv32_amp_tb.uut.adc0.data_reg[0]
 @200
 -
 -CPU
