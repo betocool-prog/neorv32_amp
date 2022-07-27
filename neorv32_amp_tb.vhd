@@ -35,30 +35,31 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+library neorv32;
+use neorv32.neorv32_package.all;
 
-entity adc_tb is
+entity neorv32_amp_tb is
 
-end adc_tb;
+end neorv32_amp_tb;
 
-architecture behav of adc_tb is
+architecture behav of neorv32_amp_tb is
 
-    -- Inputs
-    signal adc_clk_i      : std_logic; 
-    signal cpu_clk_i      : std_logic; 
-    signal adc_rst_i      : std_logic;
-    signal adc_data_i     : std_logic;
-    signal adc_slink_rdy_i:	std_logic;
-
-    -- Outputs 
-    signal adc_csn_o      : std_logic; 
-    signal adc_data_o     : std_logic;
-    signal adc_clk_o      : std_logic;
-    signal adc_par_dat_o	:	std_ulogic_vector(15 downto 0);
-    signal adc_slink_we_o	:	std_logic;
-    signal adc_slink_lst_o:	std_logic;
+    -- CPU
+    signal clk_i        :   std_ulogic  := '0';
+    signal rstn_i       :   std_ulogic  := '0';
+    signal gpio_o       :   std_ulogic_vector(7 downto 0);
+    signal uart0_txd_o  :   std_ulogic;
+    signal uart0_rxd_i  :   std_ulogic;
+    -- CPU - ADC
+    signal adc_clk_i  : std_logic;   -- Simulation only! Master 49.152 MHZ clock for ADC
+    signal adc_csn_o	: std_logic;  -- Chip Select (inv)
+    signal adc_data_o	:	std_logic;  -- Serial data out (Channel select)
+    signal adc_data_i	:	std_logic;  -- Serial data in
+    signal adc_clk_o	:	std_logic;  -- Serial clock
+    signal test_d3_o  : std_logic;  -- TEST PIN
 
     -- Timing
-    constant clk_period: time := 20.34 ns;
+    constant clk_adc_period: time := 20.34 ns;
     constant clk_cpu_period: time := 10 ns;
 
     -- Memory holding test data
@@ -89,28 +90,40 @@ architecture behav of adc_tb is
     signal data_reg     : std_ulogic_vector(15 downto 0) := x"0000";
 
 begin
-    -- connecting testbench signals with adc.vhd
-    UUT : entity work.adc port map (
-	 -- ADC --
-	 -- Interface to the TOP level
-	 adc_clk_i	      => adc_clk_i,
-	 adc_cpu_clk_i	  => cpu_clk_i,
-	 adc_rst_i	      => adc_rst_i,
-	 adc_csn_o	      => adc_csn_o,
-	 adc_data_o	      => adc_data_o,
-	 adc_data_i       => adc_data_i,
-	 adc_clk_o	      => adc_clk_o,
-      
-   -- Wishbone bus
-   wb_adr_i	            => X"00000000",
-   wb_dat_i	            => X"00000000",
-  --  wb_dat_o	            => wb_dat_sl_o,
-   wb_we_i 	            => '0',
-   wb_sel_i	            =>  X"0",
-   wb_stb_i	            => '0',
-   wb_cyc_i	            => '0'
-  --  wb_ack_o	            => wb_ack,
-  --  wb_err_o	            => wb_err
+    -- connecting testbench signals with neorv32_amp.vhd
+    UUT : entity neorv32.neorv32_amp 
+    generic map(
+        SIMULATE            => true,
+        MEM_INT_IMEM_EN     => true,
+        MEM_INT_IMEM_SIZE   => 128 * 1024,
+        IO_XIP_EN           => false,
+        INT_BOOTLOADER_EN    => false
+    )
+    port map (
+    -- Global control --
+    clk_i       => clk_i,
+    rstn_i      => rstn_i,
+    
+    -- GPIO --
+    gpio_o      => gpio_o,
+    
+    -- UART0 --
+    uart0_txd_o => uart0_txd_o,
+    uart0_rxd_i => uart0_rxd_i,
+
+    -- ADC --
+    adc_clk_i   => adc_clk_i,
+    adc_csn_o	=> adc_csn_o,
+    adc_data_o	=> adc_data_o,
+    adc_data_i	=> adc_data_i,
+    adc_clk_o	=> adc_clk_o,
+	 
+    -- XIP --
+    xip_sdi_i => '0',
+
+	 -- Test --
+	 -- Pin D3
+	 test_d3_o	=> test_d3_o
   );
 
     
@@ -118,28 +131,28 @@ begin
   clk_process: process
   begin
     adc_clk_i <= '0';
-    wait for clk_period/2;
+    wait for clk_adc_period/2;
     adc_clk_i <= '1';
-    wait for clk_period/2;
+    wait for clk_adc_period/2;
   end process;  
   
   cpu_clk_process: process
   begin
-    cpu_clk_i <= '0';
+    clk_i <= '0';
     wait for clk_cpu_period/2;
-    cpu_clk_i <= '1';
+    clk_i <= '1';
     wait for clk_cpu_period/2;
   end process;
 
-  adc_rst_i <= '1', '0' after 1 us;
+  rstn_i <= '0', '1' after 100 ns;
 
 	-- On a clock falling edge :
 	-- - Push out new bit
 	-- - Increment the bit counter
-	process(adc_clk_o, adc_rst_i, adc_csn_o)
+	process(adc_clk_o, rstn_i, adc_csn_o)
 	begin
 		if falling_edge(adc_clk_o) or falling_edge(adc_csn_o)then
-			if adc_rst_i = '1' then
+			if rstn_i = '0' then
 				bit_cnt <= X"0";
 			else
         bit_cnt <= bit_cnt + 1;
@@ -153,7 +166,5 @@ begin
 			end if;
 		end if;
 	end process;
-
-  adc_slink_rdy_i <= '1';
     
 end behav ;

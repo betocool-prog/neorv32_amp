@@ -42,6 +42,7 @@
 #include <neorv32.h>
 
 #define MILLISECONDS  100000
+#define ADC_BASE_ADDR 0xA0000000
 
 
 /**********************************************************************//**
@@ -62,13 +63,8 @@ int main() {
   neorv32_gpio_port_set(0);
 
   uint64_t now = 0;
-  uint64_t last_read_time = 0;
 
   bool print_info = true;
-  int slink_available = 0;
-  int slink_num = 0;
-  int slink_depth = 0;
-  int slink_status = 0;
 
   neorv32_uart0_setup(115200, PARITY_NONE, FLOW_CONTROL_NONE);
 
@@ -85,25 +81,18 @@ int main() {
     if(print_info)
     {
       print_info = false;
-      slink_available = neorv32_slink_available();
-      neorv32_uart0_printf("Slink available: %d\n", slink_available);
+      neorv32_uart0_printf("Welcome!\n");
+      data_buf = *((volatile uint32_t*) (ADC_BASE_ADDR));
+      neorv32_uart0_printf("Data: 0x%x\n", data_buf);
+      data_buf = *((volatile uint32_t*) (ADC_BASE_ADDR + 4));
+      neorv32_uart0_printf("Data: 0x%x\n", data_buf);
+      data_buf = *((volatile uint32_t*) (ADC_BASE_ADDR + 8));
+      neorv32_uart0_printf("Data: 0x%x\n", data_buf);
+      data_buf = *((volatile uint32_t*) (ADC_BASE_ADDR + 12));
+      neorv32_uart0_printf("Data: 0x%x\n", data_buf);
 
-      // neorv32_slink_enable();
-      neorv32_slink_setup(0, 0);
-
-      slink_num = neorv32_slink_get_link_num(0);
-      neorv32_uart0_printf("Slink Num: %d\n", slink_num);
-
-      slink_depth = neorv32_slink_get_fifo_depth(0);
-      neorv32_uart0_printf("Slink depth: %d\n", slink_depth);
-    }
-
-    data_buf = 0xDEADBEEF;
-    if((neorv32_mtime_get_time() - last_read_time) > (100 * MILLISECONDS))
-    {
-      last_read_time = neorv32_mtime_get_time();
-      slink_status = neorv32_slink_rx(0, &data_buf);
-      neorv32_uart0_printf("Data: 0x%x, status: %i\n", data_buf, slink_status);
+      data_buf = *((volatile uint32_t*) (ADC_BASE_ADDR + 0x104));
+      neorv32_uart0_printf("Bad Data: 0x%x\n", data_buf);
     }
   }
 

@@ -46,11 +46,17 @@ entity adc is
 	 -- CPU clock input
 	 adc_cpu_clk_i	: 	in std_logic;
 
-	 -- Parallel data interface to TOP level (SLINK)
-	 adc_par_dat_o	:	out std_ulogic_vector(15 downto 0);
-	 adc_slink_we_o	:	out std_logic	:= '0';
-	 adc_slink_lst_o:	out std_logic	:= '0';
-	 adc_slink_rdy_i:	in std_logic;
+	 -- Wishbone bus interface (available if MEM_EXT_EN = true) --
+	--  wb_tag_i       : in std_ulogic_vector(02 downto 0); -- request tag
+	 wb_adr_i       : in std_ulogic_vector(31 downto 0) := (others => '0'); -- address
+	 wb_dat_i       : in  std_ulogic_vector(31 downto 0) := (others => 'U'); -- read data
+	 wb_dat_o       : out std_ulogic_vector(31 downto 0); -- write data
+	 wb_we_i        : in std_ulogic; -- read/write
+	 wb_sel_i       : in std_ulogic_vector(03 downto 0); -- byte enable
+	 wb_stb_i       : in std_ulogic; -- strobe
+	 wb_cyc_i       : in std_ulogic; -- valid cycle
+	 wb_ack_o       : out  std_ulogic := '0'; -- transfer acknowledge
+	 wb_err_o       : out  std_ulogic := '0'; -- transfer error
 	 
 	 -- SPI interface to chip --
 	 adc_csn_o		:	out std_logic	:= '1';
@@ -73,6 +79,11 @@ architecture adc_rtl of adc is
 	signal clk_spi_2		:	std_logic := '0';
 	signal clk_spi_prev		:	std_logic := '0';
 	signal clk_ris_e		:	std_logic := '0';
+
+	-- Wishbone interface
+	constant MEM_START		:   std_ulogic_vector(31 downto 0) 	:= X"A0000000";
+	constant MEM_STOP		:   std_ulogic_vector(31 downto 0) 	:= X"A0000100";
+	signal valid_req		:	std_logic 	:= '0';
 	
 begin
 	
@@ -110,6 +121,7 @@ begin
 	-- From here on we process data from the main CPU clock domain
 	-- Detect rising edge on clock and 
 	-- generate a pulse
+
 
 	process(adc_cpu_clk_i)
 	begin
@@ -156,10 +168,40 @@ begin
 			end if;
 		end if;
 	end process;
-	
-	-- -- Write enable signal
-	adc_slink_we_o <= '1' when ((bit_cnt = X"F") and (clk_ris_e = '1') and (adc_slink_rdy_i = '1')) else '0';
-	adc_par_dat_o <= data_reg;
-	adc_slink_lst_o <= '0';
+
+	-- Handle MEM_EXT interface requests
+	valid_req <= '1' when (
+		((wb_adr_i >= MEM_START) and (wb_adr_i < MEM_STOP)) and
+		(wb_we_i = '0') and
+		(wb_stb_i = '1') and
+		(wb_cyc_i = '1')
+	) else '0';
+	wb_dat_o(31 downto 16) <= X"0000";
+	wb_err_o <= '0';
+		
+	process(adc_cpu_clk_i)
+	begin
+		if adc_rst_i = '1' then
+			wb_dat_o(15 downto 0) <= X"0000";
+			wb_ack_o <= '0';
+		else
+			if rising_edge(adc_cpu_clk_i) then
+				wb_dat_o(15 downto 0) <= X"0000";
+				wb_ack_o <= '0';
+				if (valid_req = '1') then
+					if(wb_adr_i(3 downto 0) = X"0") then
+						wb_dat_o(15 downto 0) <= X"DEAD";
+						wb_ack_o <= '1';
+					elsif(wb_adr_i(3 downto 0) = X"4") then
+						wb_dat_o(15 downto 0) <= X"BEEF";
+						wb_ack_o <= '1';
+					else
+						wb_dat_o(15 downto 0) <= X"CAFE";
+						wb_ack_o <= '1';
+					end if;
+				end if;
+			end if;
+		end if;
+	end process;
 
 end architecture; --adc

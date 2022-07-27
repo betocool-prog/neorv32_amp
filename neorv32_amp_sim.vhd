@@ -211,9 +211,9 @@ begin
   )
   port map (
     -- Global control --
-    -- clk_i       => clk_i,                           -- global clock, rising edge
-    clk_i       => pll0_clk,                           -- global clock, rising edge
-    rstn_i      => resetn,                             -- global reset, low-active, async
+    clk_i       => clk_i,                           -- global clock, rising edge
+    -- clk_i       => pll0_clk,                           -- global clock, rising edge
+    rstn_i      => rstn_i,                             -- global reset, low-active, async
 
     -- GPIO (available if IO_GPIO_EN = true) --
     gpio_o      => con_gpio_o,                         -- parallel output
