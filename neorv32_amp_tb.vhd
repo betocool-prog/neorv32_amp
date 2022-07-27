@@ -90,22 +90,18 @@ architecture behav of neorv32_amp_tb is
     signal data_reg     : std_ulogic_vector(15 downto 0) := x"0000";
 
 begin
-    -- connecting testbench signals with neorv32_amp.vhd
-    UUT : entity neorv32.neorv32_amp 
+    -- connecting testbench signals with neorv32_amp_sim.vhd
+    UUT : entity neorv32.neorv32_amp_sim 
     generic map(
-        SIMULATE            => true,
         MEM_INT_IMEM_EN     => true,
         MEM_INT_IMEM_SIZE   => 128 * 1024,
         IO_XIP_EN           => false,
-        INT_BOOTLOADER_EN    => false
+        INT_BOOTLOADER_EN   => false
     )
     port map (
     -- Global control --
     clk_i       => clk_i,
     rstn_i      => rstn_i,
-    
-    -- GPIO --
-    gpio_o      => gpio_o,
     
     -- UART0 --
     uart0_txd_o => uart0_txd_o,
@@ -116,14 +112,7 @@ begin
     adc_csn_o	=> adc_csn_o,
     adc_data_o	=> adc_data_o,
     adc_data_i	=> adc_data_i,
-    adc_clk_o	=> adc_clk_o,
-	 
-    -- XIP --
-    xip_sdi_i => '0',
-
-	 -- Test --
-	 -- Pin D3
-	 test_d3_o	=> test_d3_o
+    adc_clk_o	=> adc_clk_o
   );
 
     

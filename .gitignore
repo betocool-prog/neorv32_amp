@@ -29,6 +29,7 @@ wave.ghw
 adc_tb
 neorv32_amp_tb
 *.ghw
+*.out
 
 # measurement
 neorv32_amp.dwf3work

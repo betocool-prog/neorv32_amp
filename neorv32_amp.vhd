@@ -44,7 +44,6 @@ entity neorv32_amp is
     -- adapt these for your setup --
     CLOCK_FREQUENCY   				: natural := 100000000; -- clock frequency of clk_i in Hz
     MEM_INT_DMEM_SIZE 				: natural := 32*1024;     -- size of processor-internal data memory in bytes
-    SIMULATE          				: boolean := false;
     MEM_INT_IMEM_EN              : boolean := true;  -- implement processor-internal instruction memory
     MEM_INT_IMEM_SIZE            : natural := 16*1024; -- size of processor-internal instruction memory in bytes
     IO_XIP_EN                    : boolean := false;   -- implement execute in place module (XIP)?
@@ -243,76 +242,43 @@ begin
  
   -- QSys Components ----------------------------------------------------------------
   -- -------------------------------------------------------------------------------------------
-  -- Only generate this component if it's not a simulation
-instantiate_plls:
-if (SIMULATE = false) generate
-  u0 : component platform
-      port map (
-        clk_src_i_clk         => clk_i,         --     clk_src_i.clk
-        clk_src_rst_i_reset_n => rstn_i, -- clk_src_rst_i.reset_n
-        clk_src_o_clk         => main_clk,         --     clk_src_o.clk
-        clk_src_rst_o_reset_n => resetn, -- clk_src_rst_o.reset_n
-        pll0_clk_o_clk        => pll0_clk,        --    pll0_clk_o.clk
-        pll0_rst_i_reset      => reset,      --    pll0_rst_i.reset
-        pll0_clk_i_clk        => main_clk,        --    pll0_clk_i.clk
-        pll1_clk_i_clk        => main_clk,        --    pll1_clk_i.clk
-        pll1_rst_i_reset      => reset,      --    pll1_rst_i.reset
-        pll1_clk_o_clk        => pll1_clk         --    pll1_clk_o.clk
-      );
-end generate;
+
+QSYS : component platform
+    port map (
+      clk_src_i_clk         => clk_i,         --     clk_src_i.clk
+      clk_src_rst_i_reset_n => rstn_i, -- clk_src_rst_i.reset_n
+      clk_src_o_clk         => main_clk,         --     clk_src_o.clk
+      clk_src_rst_o_reset_n => resetn, -- clk_src_rst_o.reset_n
+      pll0_clk_o_clk        => pll0_clk,        --    pll0_clk_o.clk
+      pll0_rst_i_reset      => reset,      --    pll0_rst_i.reset
+      pll0_clk_i_clk        => main_clk,        --    pll0_clk_i.clk
+      pll1_clk_i_clk        => main_clk,        --    pll1_clk_i.clk
+      pll1_rst_i_reset      => reset,      --    pll1_rst_i.reset
+      pll1_clk_o_clk        => pll1_clk         --    pll1_clk_o.clk
+    );
 
 -- Generate this ADC if it's not a simulation
-instantiate_adc:
-if (SIMULATE = false) generate
-  adc0: component adc
-      port map (
-        adc_clk_i	            => pll1_clk,
-        adc_cpu_clk_i         => pll0_clk,
-        adc_rst_i	            => reset,
-        adc_csn_o	            => adc_csn_o,
-        adc_data_o	          => adc_data_o,
-        adc_data_i	          => adc_data_i,
-        adc_clk_o	            => test,
-        
-        -- Wishbone bus
-        wb_adr_i	            => wb_adr,
-        wb_dat_i	            => wb_dat_sl_i,
-        wb_dat_o	            => wb_dat_sl_o,
-        wb_we_i 	            => wb_we,
-        wb_sel_i	            => wb_sel,
-        wb_stb_i	            => wb_stb,
-        wb_cyc_i	            => wb_cyc,
-        wb_ack_o	            => wb_ack,
-        wb_err_o	            => wb_err
-      );
-end generate;
-
-  -- Use this component for ADC simulation
-simulate_adc:
-if (SIMULATE = true) generate
-  adc0: component adc
-      port map (
-        adc_clk_i	            => adc_clk_i,
-        adc_cpu_clk_i         => clk_i,
-        adc_rst_i	            => not rstn_i,
-        adc_csn_o	            => adc_csn_o,
-        adc_data_o	          => adc_data_o,
-        adc_data_i	          => adc_data_i,
-        adc_clk_o	            => test,
-        
-        -- Wishbone bus
-        wb_adr_i	            => wb_adr,
-        wb_dat_i	            => wb_dat_sl_i,
-        wb_dat_o	            => wb_dat_sl_o,
-        wb_we_i 	            => wb_we,
-        wb_sel_i	            => wb_sel,
-        wb_stb_i	            => wb_stb,
-        wb_cyc_i	            => wb_cyc,
-        wb_ack_o	            => wb_ack,
-        wb_err_o	            => wb_err
-      );
-end generate;
-
+adc0: component adc
+    port map (
+      adc_clk_i	            => pll1_clk,
+      adc_cpu_clk_i         => pll0_clk,
+      adc_rst_i	            => reset,
+      adc_csn_o	            => adc_csn_o,
+      adc_data_o	          => adc_data_o,
+      adc_data_i	          => adc_data_i,
+      adc_clk_o	            => test,
+      
+      -- Wishbone bus
+      wb_adr_i	            => wb_adr,
+      wb_dat_i	            => wb_dat_sl_i,
+      wb_dat_o	            => wb_dat_sl_o,
+      wb_we_i 	            => wb_we,
+      wb_sel_i	            => wb_sel,
+      wb_stb_i	            => wb_stb,
+      wb_cyc_i	            => wb_cyc,
+      wb_ack_o	            => wb_ack,
+      wb_err_o	            => wb_err
+    );
   
   -- GPIO output --
   gpio_o <= con_gpio_o(7 downto 0);
