@@ -44,10 +44,10 @@ entity neorv32_amp is
     -- adapt these for your setup --
     CLOCK_FREQUENCY   				: natural := 100000000; -- clock frequency of clk_i in Hz
     MEM_INT_DMEM_SIZE 				: natural := 32*1024;     -- size of processor-internal data memory in bytes
-    MEM_INT_IMEM_EN              : boolean := true;  -- implement processor-internal instruction memory
+    MEM_INT_IMEM_EN              : boolean := false;  -- implement processor-internal instruction memory
     MEM_INT_IMEM_SIZE            : natural := 16*1024; -- size of processor-internal instruction memory in bytes
-    IO_XIP_EN                    : boolean := false;   -- implement execute in place module (XIP)?
-    INT_BOOTLOADER_EN            : boolean := false  -- boot configuration: true = boot explicit bootloader; false = boot from int/ext (I)MEM
+    IO_XIP_EN                    : boolean := true;   -- implement execute in place module (XIP)?
+    INT_BOOTLOADER_EN            : boolean := true  -- boot configuration: true = boot explicit bootloader; false = boot from int/ext (I)MEM
 
   );
   port (
@@ -69,7 +69,6 @@ entity neorv32_amp is
     xip_csn_o   : out std_ulogic;	 -- chip-select, low-active
 
     -- ADC --
-    adc_clk_i   : in std_logic;   -- Simulation only! Master 49.152 MHZ clock for ADC
     adc_csn_o	  :	out std_logic;  -- Chip Select (inv)
     adc_data_o	:	out std_logic;  -- Serial data out (Channel select)
     adc_data_i	:	in  std_logic;  -- Serial data in

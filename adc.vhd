@@ -72,22 +72,54 @@ architecture adc_rtl of adc is
 	signal bit_cnt 		:	unsigned(3 downto 0) := X"0";
 
 	signal data_reg_i	:	std_ulogic_vector(15 downto 0) := X"0000";
-	signal data_reg 	:	std_ulogic_vector(15 downto 0) := X"0000";
 
-	signal clk_spi_0		:	std_logic := '0';
-	signal clk_spi_1		:	std_logic := '0';
-	signal clk_spi_2		:	std_logic := '0';
+	signal clk_spi_0		  :	std_logic := '0';
+	signal clk_spi_1		  :	std_logic := '0';
+	signal clk_spi_2		  :	std_logic := '0';
 	signal clk_spi_prev		:	std_logic := '0';
-	signal clk_ris_e		:	std_logic := '0';
+	signal clk_ris_e		  :	std_logic := '0';
 
 	-- Wishbone interface
-	constant MEM_START		:   std_ulogic_vector(31 downto 0) 	:= X"A0000000";
-	constant MEM_STOP		:   std_ulogic_vector(31 downto 0) 	:= X"A0000100";
-	signal valid_req		:	std_logic 	:= '0';
-	
+	constant MEM_START		: std_ulogic_vector(31 downto 0) 	:= X"A0000000";
+	constant MEM_STOP		  : std_ulogic_vector(31 downto 0) 	:= X"A0000100";
+	signal read_req		    :	std_logic 	:= '0';
+	signal prev_read_req	:	std_logic 	:= '0';
+	signal write_req		  :	std_logic 	:= '0';
+	signal prev_write_req	:	std_logic 	:= '0';
+
+	-- ADC FIFO
+	-- This is based very much on S. Nolting's FIFO module.
+	signal FIFO_DEPTH		: 	natural := 256;
+	signal FIFO_WIDTH		:	natural := 16;
+	signal FIFO_IDX			:	natural := (8 - 1); -- Log2 of FIFO_DEPTH - 1
+
+	type fifo_data_t is array (0 to FIFO_DEPTH-1) of std_ulogic_vector(FIFO_WIDTH-1 downto 0);
+	type fifo_t is record
+		we    : std_ulogic; -- write enable
+		w_pnt : std_ulogic_vector(FIFO_IDX downto 0); -- write pointer
+		r_pnt : std_ulogic_vector(FIFO_IDX downto 0); -- read pointer
+		level : std_ulogic_vector(FIFO_IDX downto 0); -- fill count
+		data  : fifo_data_t; -- fifo memory
+		empty : std_ulogic;
+		full  : std_ulogic;
+		half  : std_ulogic;
+		end record;
+		signal fifo : fifo_t;
+
+	-- ADC Registers, control and status
+  signal    adc_status          : std_ulogic_vector(31 downto 0);
+  signal    adc_enable          : std_logic := '0';
+  constant  ADC_ENABLE_BIT      : natural := 0;
+  constant  ADC_FIFO_EMPTY_BIT  : natural := 1;
+  constant  ADC_FIFO_FULL_BIT   : natural := 2;
+  constant  ADC_FIFO_HALF_BIT   : natural := 3;
+  constant  ADC_FIFO_LEVEL_L    : natural := 4;
+  constant  ADC_FIFO_LEVEL_H    : natural := FIFO_IDX + ADC_FIFO_LEVEL_L;
+
 begin
 	
 	adc_data_o <= '0';
+  adc_enable <= adc_status(ADC_ENABLE_BIT);
 
 	-- Main Clock divider
 	-- CLK is 49.152 MHz or so
@@ -95,7 +127,7 @@ begin
 	adc_clk_o <= clk_div(3);
 	process(adc_clk_i, adc_rst_i)
 	begin
-		if adc_rst_i = '1' then
+		if ((adc_rst_i = '1') or (adc_enable = '0')) then
 			clk_div <= "0000";
 		else
 			if rising_edge(adc_clk_i) then
@@ -107,7 +139,7 @@ begin
 	-- Set CSN low to start
 	process(adc_clk_i, adc_rst_i, clk_div)
 	begin
-		if adc_rst_i = '1' then
+		if ((adc_rst_i = '1') or (adc_enable = '0')) then
 			adc_csn_o <= '1';
 		else
 			if rising_edge(adc_clk_i) then
@@ -141,7 +173,7 @@ begin
 	-- - Increment the bit counter
 	process(adc_cpu_clk_i, adc_rst_i)
 	begin
-		if adc_rst_i = '1' then
+		if ((adc_rst_i = '1') or (adc_enable = '0')) then
 			bit_cnt <= X"0";
 			data_reg_i <= X"0000";
 		else
@@ -153,51 +185,93 @@ begin
 					end if;
 				end if;
 			end if;
-	end process;
+	end process;	
+	
+	-- ADC FIFO
+	-- The incoming data gets written to FIFO
+	-- A flag is set when the level is above half (128 words)
+	-- Fifo reads are mapped to MEM_START + 0
 
-	-- Store the newly received 16bit word
+	fifo.level <= std_ulogic_vector(unsigned(fifo.w_pnt) - unsigned(fifo.r_pnt));
+	fifo.empty <= '1' when (fifo.level = X"00") else '0';
+	fifo.full <= '1' when (fifo.level = X"FF") else '0';
+	fifo.half <= '1' when (fifo.level > X"3F") else '0';
+	
+	-- Store the newly received 16bit word into the FIFO
 	process(adc_cpu_clk_i, adc_rst_i, bit_cnt, clk_ris_e)
 	begin
-		if adc_rst_i = '1' then
-			data_reg <= X"0000";
+		if ((adc_rst_i = '1') or (adc_enable = '0')) then
+			fifo.w_pnt <= X"00";
+			fifo.we <= '0';
 		else
 			if rising_edge(adc_cpu_clk_i) then
 				if ((bit_cnt = X"0") and (clk_ris_e = '1')) then
-					data_reg <= data_reg_i;
+					if(fifo.level /= X"FF") then
+						fifo.data(to_integer(unsigned(fifo.w_pnt))) <= data_reg_i;
+						fifo.we <= '1';
+						fifo.w_pnt <= std_ulogic_vector(unsigned(fifo.w_pnt) + 1);
+					end if;
 				end if;
 			end if;
 		end if;
 	end process;
 
 	-- Handle MEM_EXT interface requests
-	valid_req <= '1' when (
+  -- Read
+	read_req <= '1' when (
 		((wb_adr_i >= MEM_START) and (wb_adr_i < MEM_STOP)) and
 		(wb_we_i = '0') and
 		(wb_stb_i = '1') and
 		(wb_cyc_i = '1')
 	) else '0';
-	wb_dat_o(31 downto 16) <= X"0000";
+  -- Write
+	write_req <= '1' when (
+		((wb_adr_i >= MEM_START) and (wb_adr_i < MEM_STOP)) and
+		(wb_we_i = '1') and
+		(wb_stb_i = '1') and
+		(wb_cyc_i = '1')
+	) else '0';
+
 	wb_err_o <= '0';
 		
 	process(adc_cpu_clk_i)
 	begin
 		if adc_rst_i = '1' then
-			wb_dat_o(15 downto 0) <= X"0000";
+			wb_dat_o <= X"00000000";
 			wb_ack_o <= '0';
+			fifo.r_pnt <= X"00";
+      adc_status <= X"00000000";
 		else
 			if rising_edge(adc_cpu_clk_i) then
-				wb_dat_o(15 downto 0) <= X"0000";
 				wb_ack_o <= '0';
-				if (valid_req = '1') then
+        adc_status(ADC_ENABLE_BIT) <= adc_status(ADC_ENABLE_BIT);
+        adc_status(ADC_FIFO_EMPTY_BIT) <= fifo.empty;
+        adc_status(ADC_FIFO_FULL_BIT) <= fifo.full;
+        adc_status(ADC_FIFO_HALF_BIT) <= fifo.half;
+        adc_status(ADC_FIFO_LEVEL_H downto ADC_FIFO_LEVEL_L) <= fifo.level;
+
+        -- Handle reads
+				prev_read_req <= read_req;
+				if ((read_req = '1') and (prev_read_req = '0')) then
 					if(wb_adr_i(3 downto 0) = X"0") then
-						wb_dat_o(15 downto 0) <= X"DEAD";
-						wb_ack_o <= '1';
+            wb_ack_o <= '1';
+						wb_dat_o <= adc_status;
 					elsif(wb_adr_i(3 downto 0) = X"4") then
-						wb_dat_o(15 downto 0) <= X"BEEF";
-						wb_ack_o <= '1';
-					else
-						wb_dat_o(15 downto 0) <= X"CAFE";
-						wb_ack_o <= '1';
+            wb_ack_o <= '1';
+						if(fifo.level /= X"00") then
+							wb_dat_o(15 downto 0) <= fifo.data(to_integer(unsigned(fifo.r_pnt)));
+							fifo.r_pnt <= std_ulogic_vector(unsigned(fifo.r_pnt) + 1);
+            end if;
+					end if;
+				end if;
+
+        -- Handle writes
+				prev_write_req <= write_req;
+				if ((write_req = '1') and (prev_write_req = '0')) then
+					if(wb_adr_i(3 downto 0) = X"0") then
+            wb_ack_o <= '1';
+						adc_status <= wb_dat_i;
+          -- Ignore any other case
 					end if;
 				end if;
 			end if;

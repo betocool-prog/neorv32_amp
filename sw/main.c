@@ -34,65 +34,76 @@
 
 
 /**********************************************************************//**
- * @file blink_led/main.c
- * @author Stephan Nolting
- * @brief Simple blinking LED demo program using the lowest 8 bits of the GPIO.output port.
+ * @file neorv32_amp/main.c
+ * @author Alberto Fahrenkrog
+ * @brief Simple ADC program
  **************************************************************************/
 #include <stdbool.h>
 #include <neorv32.h>
 
-#define MILLISECONDS  100000
-#define ADC_BASE_ADDR 0xA0000000
+#define MSECONDS  100000
+#define USECONDS  100
 
+/* ADC definitions */
+#define ADC_BASE_ADDR       0xA0000000
+#define ADC_ENABLE_BIT      0x00000001
+#define ADC_FIFO_EMPTY_BIT  0x00000002
+#define ADC_FIFO_FULL_BIT   0x00000004
+#define ADC_FIFO_HALF_BIT   0x00000008
+#define ADC_FIFO_LEVEL      0x00000FF0
 
 /**********************************************************************//**
- * Main function; shows an incrementing 8-bit counter on GPIO.output(7:0).
+ * Main function; Gets an ADC sample and shows min, max and avg.
  *
  * @note This program requires the GPIO controller to be synthesized.
+ * @note This program requires the external memory controller to be synthesized.
+ * @note This program requires UART0 to be synthesized.
  *
  * @return Will never return.
  **************************************************************************/
 
-uint32_t data_buf = 0;
+static volatile uint32_t data_buf = 0;
+volatile uint32_t* adc_reg = 0;
 
 int main() {
 
-  // This is a *minimal* example program.
+  uint64_t now_ms = 0;
+  uint32_t samples_rxd = 0;
 
   // clear GPIO output (set all bits to 0)
   neorv32_gpio_port_set(0);
-
-  uint64_t now = 0;
-
-  bool print_info = true;
-
   neorv32_uart0_setup(115200, PARITY_NONE, FLOW_CONTROL_NONE);
 
-  now = neorv32_mtime_get_time();
+  now_ms = neorv32_mtime_get_time();
+
+  adc_reg = ((volatile uint32_t*) (ADC_BASE_ADDR));
+  neorv32_uart0_printf("Status: %x\n", adc_reg[0]);
+  adc_reg[0] = 0x1;
   while (1) 
   {
 
-    if((neorv32_mtime_get_time() - now) > (100 * MILLISECONDS))
+    if((neorv32_mtime_get_time() - now_ms) > (100 * MSECONDS))
     {
-      now = neorv32_mtime_get_time();
+      now_ms = neorv32_mtime_get_time();
       neorv32_gpio_pin_toggle(7); // increment counter and mask for lowest 8 bit
+      neorv32_uart0_printf("Status: %x, Samples RXD: %d\n", adc_reg[0], samples_rxd);
     }
 
-    if(print_info)
-    {
-      print_info = false;
-      neorv32_uart0_printf("Welcome!\n");
-      data_buf = *((volatile uint32_t*) (ADC_BASE_ADDR));
-      neorv32_uart0_printf("Data: 0x%x\n", data_buf);
-      data_buf = *((volatile uint32_t*) (ADC_BASE_ADDR + 4));
-      neorv32_uart0_printf("Data: 0x%x\n", data_buf);
-      data_buf = *((volatile uint32_t*) (ADC_BASE_ADDR + 8));
-      neorv32_uart0_printf("Data: 0x%x\n", data_buf);
-      data_buf = *((volatile uint32_t*) (ADC_BASE_ADDR + 12));
-      neorv32_uart0_printf("Data: 0x%x\n", data_buf);
+    // if((neorv32_mtime_get_time() - now_us) > (7 * USECONDS))
+    // {
+    //   now_us = neorv32_mtime_get_time();
+    //   data_buf = adc_reg[1];
+    // }
 
-      data_buf = *((volatile uint32_t*) (ADC_BASE_ADDR + 0x104));
-      neorv32_uart0_printf("Bad Data: 0x%x\n", data_buf);
+    // Check if FIFO is half full
+    if(adc_reg[0] & ADC_FIFO_HALF_BIT)
+    {
+      // Read data out while possible
+      while(0 == (adc_reg[0] & ADC_FIFO_EMPTY_BIT))
+      {
+        data_buf = adc_reg[1];
+        samples_rxd++;
+      }
     }
   }
 
