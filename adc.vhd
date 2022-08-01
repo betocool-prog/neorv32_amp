@@ -195,7 +195,7 @@ begin
 	fifo.level <= std_ulogic_vector(unsigned(fifo.w_pnt) - unsigned(fifo.r_pnt));
 	fifo.empty <= '1' when (fifo.level = X"00") else '0';
 	fifo.full <= '1' when (fifo.level = X"FF") else '0';
-	fifo.half <= '1' when (fifo.level > X"3F") else '0';
+	fifo.half <= '1' when (fifo.level > X"7F") else '0';
 	
 	-- Store the newly received 16bit word into the FIFO
 	process(adc_cpu_clk_i, adc_rst_i, bit_cnt, clk_ris_e)
@@ -205,6 +205,8 @@ begin
 			fifo.we <= '0';
 		else
 			if rising_edge(adc_cpu_clk_i) then
+        fifo.we <= '0';
+        fifo.w_pnt <= fifo.w_pnt;
 				if ((bit_cnt = X"0") and (clk_ris_e = '1')) then
 					if(fifo.level /= X"FF") then
 						fifo.data(to_integer(unsigned(fifo.w_pnt))) <= data_reg_i;

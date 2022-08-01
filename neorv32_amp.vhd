@@ -74,8 +74,8 @@ entity neorv32_amp is
     adc_data_i	:	in  std_logic;  -- Serial data in
     adc_clk_o	  :	out std_logic;  -- Serial clock
 	 
-	 -- Test --
-	 -- Pin D3
+	 -- Test Pins--
+	 test_c3_o	: out std_logic;
 	 test_d3_o	: out std_logic
   );
 end entity;
@@ -136,7 +136,9 @@ end component adc;
   signal resetn: std_logic;
   signal reset: std_logic;
   
-  signal test: std_logic;
+  -- Auxiliary test pins
+  signal test_d3: std_logic;
+  signal test_c3: std_logic;
   
   -- NEORV32 LEDs
   signal con_gpio_o : std_ulogic_vector(63 downto 0):= (others => '0');    
@@ -265,7 +267,7 @@ adc0: component adc
       adc_csn_o	            => adc_csn_o,
       adc_data_o	          => adc_data_o,
       adc_data_i	          => adc_data_i,
-      adc_clk_o	            => test,
+      adc_clk_o	            => adc_clk_o,
       
       -- Wishbone bus
       wb_adr_i	            => wb_adr,
@@ -282,8 +284,10 @@ adc0: component adc
   -- GPIO output --
   gpio_o <= con_gpio_o(7 downto 0);
   reset <= not resetn;
-  adc_clk_o <= test;
-  test_d3_o <= test;
+  
+  -- Test pins
+  test_d3_o <= con_gpio_o(8);
+  test_c3_o <= '0';
   
 
 end architecture; --neorv32_amp

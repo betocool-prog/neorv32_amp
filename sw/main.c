@@ -77,7 +77,7 @@ int main() {
   now_ms = neorv32_mtime_get_time();
 
   adc_reg = ((volatile uint32_t*) (ADC_BASE_ADDR));
-  neorv32_uart0_printf("Status: %x\n", adc_reg[0]);
+  // neorv32_uart0_printf("Status: %x\n", adc_reg[0]);
   adc_reg[0] = 0x1;
   while (1) 
   {
@@ -86,7 +86,7 @@ int main() {
     {
       now_ms = neorv32_mtime_get_time();
       neorv32_gpio_pin_toggle(7); // increment counter and mask for lowest 8 bit
-      neorv32_uart0_printf("Status: %x, Samples RXD: %d\n", adc_reg[0], samples_rxd);
+      // neorv32_uart0_printf("Status: %x, Samples RXD: %d\n", adc_reg[0], samples_rxd);
     }
 
     // if((neorv32_mtime_get_time() - now_us) > (7 * USECONDS))
@@ -99,11 +99,13 @@ int main() {
     if(adc_reg[0] & ADC_FIFO_HALF_BIT)
     {
       // Read data out while possible
-      while(0 == (adc_reg[0] & ADC_FIFO_EMPTY_BIT))
+      neorv32_gpio_pin_set(8);
+      for(uint32_t i=0; i < 128; i++)
       {
         data_buf = adc_reg[1];
         samples_rxd++;
       }
+      neorv32_gpio_pin_clr(8);
     }
   }
 
