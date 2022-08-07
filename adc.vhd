@@ -89,7 +89,7 @@ architecture adc_rtl of adc is
 
   -- ADC FIFO
   -- This is based very much on S. Nolting's FIFO module.
-  signal FIFO_DEPTH		: 	natural := 256;
+  signal FIFO_DEPTH		: natural := 256;
   signal FIFO_WIDTH		:	natural := 16;
   signal FIFO_IDX			:	natural := (8 - 1); -- Log2 of FIFO_DEPTH - 1
 
@@ -135,7 +135,7 @@ begin
   adc_enable <= adc_status(ADC_ENABLE_BIT);
 
   -- Main Clock divider
-  -- CLK is 49.152 MHz or so
+  -- CLK is 49.152 MHz
   -- SPI CLK is 3.072 (1/16th)
   adc_clk_o <= clk_div(3);
   process(adc_clk_i, adc_rst_i)
@@ -249,7 +249,7 @@ begin
   -- ADC FIFO
   -- The incoming data gets written to FIFO
   -- A flag is set when the level is above half (128 words)
-  -- Fifo reads are mapped to MEM_START + 0  process(adc_cpu_clk_i, adc_rst_i, bit_cnt, clk_ris_e)
+  -- Fifo reads are mapped to MEM_START + 0 
 
   fifo.level <= std_ulogic_vector(fifo.w_pnt - fifo.r_pnt);
   fifo.empty <= '1' when (fifo.level = X"00") else '0';

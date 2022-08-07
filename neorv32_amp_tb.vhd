@@ -50,6 +50,7 @@ architecture behav of neorv32_amp_tb is
     signal gpio_o       :   std_ulogic_vector(7 downto 0);
     signal uart0_txd_o  :   std_ulogic;
     signal uart0_rxd_i  :   std_ulogic;
+
     -- CPU - ADC
     signal adc_clk_i  : std_logic;   -- Simulation only! Master 49.152 MHZ clock for ADC
     signal adc_csn_o	: std_logic;  -- Chip Select (inv)
@@ -57,6 +58,9 @@ architecture behav of neorv32_amp_tb is
     signal adc_data_i	:	std_logic;  -- Serial data in
     signal adc_clk_o	:	std_logic;  -- Serial clock
     signal test_d3_o  : std_logic;  -- TEST PIN
+
+    -- DAC --
+    signal dac_pwm_o  : std_logic;  -- DAC PWM output
 
     -- Timing
     constant clk_adc_period: time := 20.34 ns;
@@ -66,22 +70,22 @@ architecture behav of neorv32_amp_tb is
     type mem16_t is array (natural range <>) of std_ulogic_vector(15 downto 0); -- memory with 16-bit entries
 
     constant test_data : mem16_t := (
-              x"0123",
-              x"4567",
-              x"89ab",
-              x"cdef",
-              x"fedc",
-              x"ba98",
-              x"7654",
-              x"3210",
-              x"0011",
-              x"2233",
-              x"4455",
-              x"6677",
-              x"8899",
-              x"aabb",
-              x"ccdd",
-              x"eeff"
+              x"0111",
+              x"0222",
+              x"0333",
+              x"0444",
+              x"0555",
+              x"0666",
+              x"0777",
+              x"0888",
+              x"0999",
+              x"0AAA",
+              x"0BBB",
+              x"0CCC",
+              x"0DDD",
+              x"0EEE",
+              x"0FFF",
+              x"0000"
     );
 
     -- Data output signals
@@ -112,7 +116,10 @@ begin
     adc_csn_o	=> adc_csn_o,
     adc_data_o	=> adc_data_o,
     adc_data_i	=> adc_data_i,
-    adc_clk_o	=> adc_clk_o
+    adc_clk_o	=> adc_clk_o,
+
+    -- DAC --
+    dac_pwm_o => dac_pwm_o
   );
 
     

@@ -74,8 +74,11 @@ entity neorv32_amp is
     adc_data_i	:	in  std_logic;  -- Serial data in
     adc_clk_o	  :	out std_logic;  -- Serial clock
 	 
+	 -- DAC --
+	 dac_pwm_o		:	out std_logic;
+	 
 	 -- Test Pins--
-	 test_c3_o	: out std_logic;
+	--  test_c3_o	: out std_logic;
 	 test_d3_o	: out std_logic
   );
 end entity;
@@ -128,6 +131,32 @@ component adc is
     adc_clk_o	:	out std_logic
 	);
 end component adc;
+
+component dac is
+	port(
+		 -- DAC --
+    -- Interface to the TOP level
+    dac_clk_i	: 	in std_logic;
+    dac_rst_i	:	in std_logic;
+
+    -- CPU clock input
+    dac_cpu_clk_i	: 	in std_logic;
+
+    --  wb_tag_i       : in std_ulogic_vector(02 downto 0); -- request tag
+    wb_adr_i       : in std_ulogic_vector(31 downto 0) := (others => '0'); -- address
+    wb_dat_i       : in  std_ulogic_vector(31 downto 0) := (others => 'U'); -- read data
+    wb_dat_o       : out std_ulogic_vector(31 downto 0); -- write data
+    wb_we_i        : in std_ulogic; -- read/write
+    wb_sel_i       : in std_ulogic_vector(03 downto 0); -- byte enable
+    wb_stb_i       : in std_ulogic; -- strobe
+    wb_cyc_i       : in std_ulogic; -- valid cycle
+    wb_ack_o       : out  std_ulogic; -- transfer acknowledge
+    wb_err_o       : out  std_ulogic; -- transfer error
+   
+    -- DAC Output --
+    dac_pwm_o		    :	out std_logic
+	);
+end component dac;
 	
 	-- QSys interface
   signal main_clk: std_logic;
@@ -146,17 +175,24 @@ end component adc;
   -- Wishbone bus interface (available if MEM_EXT_EN = true) --
   -- signal wb_tag_o       : std_ulogic_vector(02 downto 0); -- request tag
   signal wb_adr         : std_ulogic_vector(31 downto 0):= (others => '0'); -- address
-  signal wb_dat_sl_o    : std_ulogic_vector(31 downto 0) := (others => '0'); -- read data
   signal wb_dat_sl_i    : std_ulogic_vector(31 downto 0):= (others => '0'); -- write data
   signal wb_we          : std_ulogic; -- read/write
   signal wb_sel         : std_ulogic_vector(03 downto 0); -- byte enable
   signal wb_stb         : std_ulogic; -- strobe
   signal wb_cyc         : std_ulogic; -- valid cycle
+  signal wb_dat_sl_o    : std_ulogic_vector(31 downto 0) := (others => '0'); -- read data
   signal wb_ack         : std_ulogic := 'L'; -- transfer acknowledge
   signal wb_err         : std_ulogic := 'L'; -- transfer error
 
-  -- ADC input data registers
-  signal adc_par_dat_o    : std_ulogic_vector(15 downto 0) := X"0000";
+  -- ADC wishbone signals
+  signal wb_adc_dat_sl_o    : std_ulogic_vector(31 downto 0) := (others => '0'); -- read data
+  signal wb_adc_ack         : std_ulogic := 'L'; -- transfer acknowledge
+  signal wb_adc_err         : std_ulogic := 'L'; -- transfer error
+
+  -- DAC wishbone signals
+  signal wb_dac_dat_sl_o    : std_ulogic_vector(31 downto 0) := (others => '0'); -- read data
+  signal wb_dac_ack         : std_ulogic := 'L'; -- transfer acknowledge
+  signal wb_dac_err         : std_ulogic := 'L'; -- transfer error
 
 begin
 
@@ -260,26 +296,48 @@ QSYS : component platform
 
 -- Generate this ADC if it's not a simulation
 adc0: component adc
-    port map (
-      adc_clk_i	            => pll1_clk,
-      adc_cpu_clk_i         => pll0_clk,
-      adc_rst_i	            => reset,
-      adc_csn_o	            => adc_csn_o,
-      adc_data_o	          => adc_data_o,
-      adc_data_i	          => adc_data_i,
-      adc_clk_o	            => adc_clk_o,
-      
-      -- Wishbone bus
-      wb_adr_i	            => wb_adr,
-      wb_dat_i	            => wb_dat_sl_i,
-      wb_dat_o	            => wb_dat_sl_o,
-      wb_we_i 	            => wb_we,
-      wb_sel_i	            => wb_sel,
-      wb_stb_i	            => wb_stb,
-      wb_cyc_i	            => wb_cyc,
-      wb_ack_o	            => wb_ack,
-      wb_err_o	            => wb_err
-    );
+ port map (
+	 adc_clk_i	          => pll1_clk,
+	 adc_cpu_clk_i       => pll0_clk,
+	 adc_rst_i	          => reset,
+	 adc_csn_o	          => adc_csn_o,
+	 adc_data_o	        => adc_data_o,
+	 adc_data_i	        => adc_data_i,
+	 adc_clk_o	          => adc_clk_o,
+	 
+	 -- Wishbone bus
+	 wb_adr_i	          => wb_adr,
+	 wb_dat_i	          => wb_dat_sl_i,
+	 wb_dat_o	          => wb_adc_dat_sl_o,
+	 wb_we_i 	          => wb_we,
+	 wb_sel_i	          => wb_sel,
+	 wb_stb_i	          => wb_stb,
+	 wb_cyc_i	          => wb_cyc,
+	 wb_ack_o	          => wb_adc_ack,
+	 wb_err_o	          => wb_adc_err
+    ); 
+
+ -- Use this component for DAC
+ dac0: component dac
+	port map (
+	dac_clk_i	          => pll1_clk,
+	dac_cpu_clk_i         => pll0_clk,
+	dac_rst_i	          => reset,
+	
+	-- Wishbone bus
+	wb_adr_i	          => wb_adr,
+	wb_dat_i	          => wb_dat_sl_i,
+	wb_dat_o	          => wb_dac_dat_sl_o,
+	wb_we_i 	          => wb_we,
+	wb_sel_i	          => wb_sel,
+	wb_stb_i	          => wb_stb,
+	wb_cyc_i	          => wb_cyc,
+	wb_ack_o	          => wb_dac_ack,
+	wb_err_o	          => wb_dac_err,
+
+	-- DAC output
+	dac_pwm_o           => dac_pwm_o
+ );
   
   -- GPIO output --
   gpio_o <= con_gpio_o(7 downto 0);
@@ -287,7 +345,21 @@ adc0: component adc
   
   -- Test pins
   test_d3_o <= con_gpio_o(8);
-  test_c3_o <= '0';
-  
+  -- test_c3_o <= '0';
+	
+  -- Multiple wishbone buses
+  wb_ack <= wb_adc_ack or wb_dac_ack;
+  wb_err <= wb_adc_err or wb_dac_err;
 
+  process(wb_adc_ack, wb_dac_ack)
+  begin
+    if ((wb_adc_ack = '1')) then
+      wb_dat_sl_o <= wb_adc_dat_sl_o;
+    elsif ((wb_dac_ack = '1')) then
+      wb_dat_sl_o <= wb_dac_dat_sl_o;
+    else
+      wb_dat_sl_o <= (others => '0');
+    end if;
+  end process;
+  
 end architecture; --neorv32_amp

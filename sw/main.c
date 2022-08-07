@@ -52,8 +52,16 @@
 #define ADC_FIFO_HALF_BIT   0x00000008
 #define ADC_FIFO_LEVEL      0x00000FF0
 
+/* DAC definitions */
+#define DAC_BASE_ADDR       0xA0000100
+#define DAC_ENABLE_BIT      0x00000001
+#define DAC_FIFO_EMPTY_BIT  0x00000002
+#define DAC_FIFO_FULL_BIT   0x00000004
+#define DAC_FIFO_HALF_BIT   0x00000008
+#define DAC_FIFO_LEVEL      0x00000FF0
+
 /**********************************************************************//**
- * Main function; Gets an ADC sample and shows min, max and avg.
+ * Main function;
  *
  * @note This program requires the GPIO controller to be synthesized.
  * @note This program requires the external memory controller to be synthesized.
@@ -64,6 +72,7 @@
 
 static volatile uint32_t data_buf = 0;
 volatile uint32_t* adc_reg = 0;
+volatile uint32_t* dac_reg = 0;
 
 int main() {
 
@@ -77,8 +86,9 @@ int main() {
   now_ms = neorv32_mtime_get_time();
 
   adc_reg = ((volatile uint32_t*) (ADC_BASE_ADDR));
-  // neorv32_uart0_printf("Status: %x\n", adc_reg[0]);
-  adc_reg[0] = 0x1;
+  dac_reg = ((volatile uint32_t*) (DAC_BASE_ADDR));
+  adc_reg[0] = ADC_ENABLE_BIT;
+  dac_reg[0] = DAC_ENABLE_BIT;
   while (1) 
   {
 
@@ -89,12 +99,6 @@ int main() {
       // neorv32_uart0_printf("Status: %x, Samples RXD: %d\n", adc_reg[0], samples_rxd);
     }
 
-    // if((neorv32_mtime_get_time() - now_us) > (7 * USECONDS))
-    // {
-    //   now_us = neorv32_mtime_get_time();
-    //   data_buf = adc_reg[1];
-    // }
-
     // Check if FIFO is half full
     if(adc_reg[0] & ADC_FIFO_HALF_BIT)
     {
@@ -102,7 +106,7 @@ int main() {
       neorv32_gpio_pin_set(8);
       for(uint32_t i=0; i < 128; i++)
       {
-        data_buf = adc_reg[1];
+        dac_reg[1] = adc_reg[1];
         samples_rxd++;
       }
       neorv32_gpio_pin_clr(8);
