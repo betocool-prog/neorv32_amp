@@ -84,8 +84,9 @@ architecture dac_rtl of dac is
   type fifo_data_t is array (0 to FIFO_DEPTH-1) of std_ulogic_vector(FIFO_WIDTH-1 downto 0);
   type fifo_t is record
     we    : std_ulogic; -- write enable
-    w_pnt : unsigned(FIFO_IDX downto 0); -- write pointer
-    r_pnt : unsigned(FIFO_IDX downto 0); -- read pointer
+    re    : std_ulogic; -- write enable
+    w_pnt : std_ulogic_vector(FIFO_IDX downto 0); -- write pointer
+    r_pnt : std_ulogic_vector(FIFO_IDX downto 0); -- read pointer
     level : std_ulogic_vector(FIFO_IDX downto 0); -- fill count
     data  : fifo_data_t; -- fifo memory
     empty : std_ulogic;
@@ -135,7 +136,7 @@ begin
   -- A flag is set when the level is above half (128 words)
   -- Fifo reads are mapped to MEM_START + 0
 
-  fifo.level <= std_ulogic_vector(fifo.w_pnt - fifo.r_pnt);
+  fifo.level <= std_ulogic_vector(unsigned(fifo.w_pnt) - unsigned(fifo.r_pnt));
   fifo.empty <= '1' when (fifo.level = X"00") else '0';
   fifo.full <= '1' when (fifo.level = X"FF") else '0';
   fifo.half <= '1' when (fifo.level > X"7F") else '0';
@@ -199,7 +200,7 @@ begin
             wb_dat_o <= dac_status;
           elsif(wb_adr_i(3 downto 0) = X"4") then
             wb_ack_o <= '1';
-				wb_dat_o(31 downto FIFO_WIDTH) <= (others => '0');
+				    wb_dat_o(31 downto FIFO_WIDTH) <= (others => '0');
             wb_dat_o(FIFO_WIDTH-1 downto 0) <= data_in; -- Current DAC value
           -- Ignore any other case
           end if;
@@ -216,8 +217,8 @@ begin
     else
       if rising_edge(dac_cpu_clk_i) then
         if (fifo.we = '1') then
-          fifo.data(to_integer(fifo.w_pnt)) <= data_in;
-          fifo.w_pnt <= fifo.w_pnt + 1;
+          fifo.data(to_integer(unsigned(fifo.w_pnt(FIFO_IDX-1 downto 0)))) <= data_in;
+          fifo.w_pnt <= std_ulogic_vector(unsigned(fifo.w_pnt) + 1);
         end if;
       end if;
     end if;
@@ -250,8 +251,8 @@ begin
       data_fifo_out <= data_fifo_out;
       if(rising_edge(dac_clk_i)) then
         if((get_sample = '1') and (fifo.empty = '0')) then
-          data_fifo_out <= fifo.data(to_integer(fifo.r_pnt));
-          fifo.r_pnt <= fifo.r_pnt + 1;
+          data_fifo_out <= fifo.data(to_integer(unsigned(fifo.r_pnt(FIFO_IDX-1 downto 0))));
+          fifo.r_pnt <= std_ulogic_vector(unsigned(fifo.r_pnt) + 1);
         end if;
       end if;
     end if;    

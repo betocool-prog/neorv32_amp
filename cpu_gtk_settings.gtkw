@@ -1,10 +1,10 @@
 [*]
 [*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
-[*] Sun Aug  7 07:25:13 2022
+[*] Sun Aug  7 14:48:29 2022
 [*]
 [dumpfile] "/home/betocool/Projects/neorv32_amp/cpu.ghw"
-[dumpfile_mtime] "Sun Aug  7 07:23:57 2022"
-[dumpfile_size] 9556275
+[dumpfile_mtime] "Sun Aug  7 09:04:28 2022"
+[dumpfile_size] 1367722
 [savefile] "/home/betocool/Projects/neorv32_amp/cpu_gtk_settings.gtkw"
 [timestart] 0
 [size] 1920 1043
@@ -12,9 +12,7 @@
 *-34.762012 143400000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.neorv32_amp_tb.
-[treeopen] top.neorv32_amp_tb.uut.
 [treeopen] top.neorv32_amp_tb.uut.adc0.downsampler.samples.
-[treeopen] top.neorv32_amp_tb.uut.dac0.
 [treeopen] top.neorv32_amp_tb.uut.dac0.fifo.
 [treeopen] top.neorv32_amp_tb.uut.neorv32_top_inst.neorv32_wishbone_inst_true.neorv32_wishbone_inst.
 [treeopen] top.neorv32_amp_tb.uut.neorv32_top_inst.neorv32_wishbone_inst_true.neorv32_wishbone_inst.ctrl.
