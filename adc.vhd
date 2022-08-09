@@ -96,7 +96,6 @@ architecture adc_rtl of adc is
   type fifo_data_t is array (0 to FIFO_DEPTH-1) of std_ulogic_vector(FIFO_WIDTH-1 downto 0);
   type fifo_t is record
     we    : std_ulogic; -- write enable
-    re    : std_ulogic; -- write enable
     w_pnt : std_ulogic_vector(FIFO_IDX downto 0); -- write pointer
     r_pnt : std_ulogic_vector(FIFO_IDX downto 0); -- read pointer
     level : std_ulogic_vector(FIFO_IDX downto 0); -- fill count
@@ -255,10 +254,10 @@ begin
   fifo.level <= std_ulogic_vector(unsigned(fifo.w_pnt) - unsigned(fifo.r_pnt));
   fifo.empty <= '1' when (fifo.level = X"00") else '0';
   fifo.full <= '1' when (fifo.level = X"FF") else '0';
-  fifo.half <= '1' when (fifo.level > X"7F") else '0';
-  
-  -- Store the newly received 16bit word into the FIFO
-  process(adc_cpu_clk_i, adc_rst_i, bit_cnt, clk_ris_e)
+  fifo.half <= '1' when (fifo.level > X"04") else '0';
+
+  -- FIFO Write Control
+  process(adc_cpu_clk_i, adc_rst_i)
   begin
     if ((adc_rst_i = '1') or (adc_enable = '0')) then
       fifo.w_pnt <= X"00";
@@ -268,14 +267,22 @@ begin
         fifo.we <= '0';
         fifo.w_pnt <= fifo.w_pnt;
         if (downsampler.rdy = '1') then
-        -- if ((bit_cnt = X"0") and (clk_ris_e = '1')) then
           if(fifo.level /= X"FF") then
-            fifo.data(to_integer(unsigned(fifo.w_pnt(FIFO_IDX-1 downto 0)))) <= downsampler.output;
             fifo.we <= '1';
             fifo.w_pnt <= std_ulogic_vector(unsigned(fifo.w_pnt) + 1);
           end if;
         end if;
       end if;
+    end if;
+  end process;
+  
+  -- Store the newly received 16bit word into the FIFO
+  process(adc_cpu_clk_i, fifo.we)
+  begin
+    if rising_edge(adc_cpu_clk_i) then
+        if(fifo.we = '1') then
+          fifo.data(to_integer(unsigned(fifo.w_pnt(FIFO_IDX downto 0)) - 1)) <= downsampler.output;
+        end if;
     end if;
   end process;
 
@@ -303,7 +310,7 @@ begin
       wb_dat_o <= X"00000000";
       wb_ack_o <= '0';
       fifo.r_pnt <= X"00";
-          adc_status <= X"00000000";
+      adc_status <= X"00000000";
     else
       if rising_edge(adc_cpu_clk_i) then
         wb_ack_o <= '0';
@@ -323,8 +330,8 @@ begin
           elsif(wb_adr_i(3 downto 0) = X"4") then
             wb_ack_o <= '1';
             if(fifo.level /= X"00") then
-              wb_dat_o(15 downto 0) <= fifo.data(to_integer(unsigned(fifo.r_pnt(FIFO_IDX-1 downto 0))));
               fifo.r_pnt <= std_ulogic_vector(unsigned(fifo.r_pnt) + 1);
+              wb_dat_o(15 downto 0) <= fifo.data(to_integer(unsigned(fifo.r_pnt(FIFO_IDX downto 0))));
             end if;
           end if;
         end if;

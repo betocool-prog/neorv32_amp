@@ -84,7 +84,6 @@ architecture dac_rtl of dac is
   type fifo_data_t is array (0 to FIFO_DEPTH-1) of std_ulogic_vector(FIFO_WIDTH-1 downto 0);
   type fifo_t is record
     we    : std_ulogic; -- write enable
-    re    : std_ulogic; -- write enable
     w_pnt : std_ulogic_vector(FIFO_IDX downto 0); -- write pointer
     r_pnt : std_ulogic_vector(FIFO_IDX downto 0); -- read pointer
     level : std_ulogic_vector(FIFO_IDX downto 0); -- fill count
@@ -93,7 +92,8 @@ architecture dac_rtl of dac is
     full  : std_ulogic;
     half  : std_ulogic;
     end record;
-  signal fifo : fifo_t;
+  signal fifo     : fifo_t;
+  signal fifo_we  :  std_logic;
   
   signal data_in  :std_ulogic_vector(FIFO_WIDTH-1 downto 0);
 
@@ -141,6 +141,36 @@ begin
   fifo.full <= '1' when (fifo.level = X"FF") else '0';
   fifo.half <= '1' when (fifo.level > X"7F") else '0';
 
+  -- FIFO Write Control
+  process(dac_cpu_clk_i, dac_rst_i)
+  begin
+    if ((dac_rst_i = '1') or (dac_enable = '0')) then
+      fifo.w_pnt <= X"00";
+      fifo.we <= '0';
+    else
+      if rising_edge(dac_cpu_clk_i) then
+        fifo.we <= '0';
+        fifo.w_pnt <= fifo.w_pnt;
+        if (fifo_we = '1') then
+          if(fifo.level /= X"FF") then
+            fifo.we <= '1';
+            fifo.w_pnt <= std_ulogic_vector(unsigned(fifo.w_pnt) + 1);
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
+  
+  -- Trigger a write into the FIFO
+  process(dac_cpu_clk_i, fifo.we)
+  begin
+    if rising_edge(dac_cpu_clk_i) then
+        if(fifo.we = '1') then
+          fifo.data(to_integer(unsigned(fifo.w_pnt(FIFO_IDX downto 0)) - 1)) <= data_in;
+        end if;
+    end if;
+  end process;
+
   -- Handle MEM_EXT interface requests
   -- Read
   read_req <= '1' when (
@@ -166,7 +196,7 @@ begin
       wb_ack_o <= '0';
       dac_status <= X"00000000";
       data_in <= X"0000";
-      fifo.we <= '0';
+      fifo_we <= '0';
     else
       if rising_edge(dac_cpu_clk_i) then
         dac_status(DAC_ENABLE_BIT) <= dac_status(DAC_ENABLE_BIT);
@@ -175,7 +205,7 @@ begin
         dac_status(DAC_FIFO_HALF_BIT) <= fifo.half;
         dac_status(DAC_FIFO_LEVEL_H downto DAC_FIFO_LEVEL_L) <= fifo.level;
         data_in <= data_in;
-        fifo.we <= '0';
+        fifo_we <= '0';
         wb_ack_o <= '0';
 
         -- Handle writes
@@ -185,9 +215,9 @@ begin
             wb_ack_o <= '1';
             dac_status <= wb_dat_i;
           elsif(wb_adr_i(3 downto 0) = X"4") then
-            wb_ack_o <= '1';
-            fifo.we <= '1';
             data_in <= wb_dat_i(FIFO_WIDTH-1 downto 0);
+            wb_ack_o <= '1';
+            fifo_we <= '1';
           -- Ignore any other case
           end if;
         end if;
@@ -204,21 +234,6 @@ begin
             wb_dat_o(FIFO_WIDTH-1 downto 0) <= data_in; -- Current DAC value
           -- Ignore any other case
           end if;
-        end if;
-      end if;
-    end if;
-  end process;
-
-  -- Trigger a write into the FIFO
-  process(dac_cpu_clk_i, dac_rst_i)
-  begin
-    if ((dac_rst_i = '1') or (dac_enable = '0')) then
-      fifo.w_pnt <= X"00";
-    else
-      if rising_edge(dac_cpu_clk_i) then
-        if (fifo.we = '1') then
-          fifo.data(to_integer(unsigned(fifo.w_pnt(FIFO_IDX-1 downto 0)))) <= data_in;
-          fifo.w_pnt <= std_ulogic_vector(unsigned(fifo.w_pnt) + 1);
         end if;
       end if;
     end if;
@@ -251,7 +266,7 @@ begin
       data_fifo_out <= data_fifo_out;
       if(rising_edge(dac_clk_i)) then
         if((get_sample = '1') and (fifo.empty = '0')) then
-          data_fifo_out <= fifo.data(to_integer(unsigned(fifo.r_pnt(FIFO_IDX-1 downto 0))));
+          data_fifo_out <= fifo.data(to_integer(unsigned(fifo.r_pnt(FIFO_IDX downto 0))));
           fifo.r_pnt <= std_ulogic_vector(unsigned(fifo.r_pnt) + 1);
         end if;
       end if;
