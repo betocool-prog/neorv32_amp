@@ -254,7 +254,7 @@ begin
   fifo.level <= std_ulogic_vector(unsigned(fifo.w_pnt) - unsigned(fifo.r_pnt));
   fifo.empty <= '1' when (fifo.level = X"00") else '0';
   fifo.full <= '1' when (fifo.level = X"FF") else '0';
-  fifo.half <= '1' when (fifo.level > X"04") else '0';
+  fifo.half <= '1' when (fifo.level > X"7F") else '0';
 
   -- FIFO Write Control
   process(adc_cpu_clk_i, adc_rst_i)

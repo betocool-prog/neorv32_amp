@@ -273,7 +273,7 @@ begin
     end if;    
   end process;
 
-  dac_pwm_level <= unsigned(data_fifo_out(14 downto 5));
+  dac_pwm_level <= unsigned(data_fifo_out(13 downto 4));
 
   -- Shift the data out from the shift register
   -- Load a new value when signalled
