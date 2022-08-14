@@ -44,10 +44,10 @@ entity neorv32_amp is
     -- adapt these for your setup --
     CLOCK_FREQUENCY   				: natural := 100000000; -- clock frequency of clk_i in Hz
     MEM_INT_DMEM_SIZE 				: natural := 32*1024;     -- size of processor-internal data memory in bytes
-    MEM_INT_IMEM_EN              : boolean := false;  -- implement processor-internal instruction memory
+    MEM_INT_IMEM_EN              : boolean := true;  -- implement processor-internal instruction memory
     MEM_INT_IMEM_SIZE            : natural := 16*1024; -- size of processor-internal instruction memory in bytes
-    IO_XIP_EN                    : boolean := true;   -- implement execute in place module (XIP)?
-    INT_BOOTLOADER_EN            : boolean := true  -- boot configuration: true = boot explicit bootloader; false = boot from int/ext (I)MEM
+    IO_XIP_EN                    : boolean := false;   -- implement execute in place module (XIP)?
+    INT_BOOTLOADER_EN            : boolean := false  -- boot configuration: true = boot explicit bootloader; false = boot from int/ext (I)MEM
 
   );
   port (
@@ -75,7 +75,7 @@ entity neorv32_amp is
     adc_clk_o	  :	out std_logic;  -- Serial clock
 	 
 	 -- DAC --
-	 dac_pwm_o		:	out std_logic;
+	 dac_pdm_o		:	out std_logic;
 	 
 	 -- Test Pins--
 	--  test_c3_o	: out std_logic;
@@ -154,7 +154,7 @@ component dac is
     wb_err_o       : out  std_ulogic; -- transfer error
    
     -- DAC Output --
-    dac_pwm_o		    :	out std_logic
+    dac_pdm_o		    :	out std_logic
 	);
 end component dac;
 	
@@ -336,7 +336,7 @@ adc0: component adc
 	wb_err_o	          => wb_dac_err,
 
 	-- DAC output
-	dac_pwm_o           => dac_pwm_o
+	dac_pdm_o           => dac_pdm_o
  );
   
   -- GPIO output --

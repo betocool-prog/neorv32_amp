@@ -106,7 +106,7 @@ int main() {
       neorv32_gpio_pin_set(8);
       for(uint32_t i=0; i < 128; i++)
       {
-        dac_reg[1] = adc_reg[1];
+        dac_reg[1] = adc_reg[1] * 4;
         samples_rxd++;
       }
       neorv32_gpio_pin_clr(8);

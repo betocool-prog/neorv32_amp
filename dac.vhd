@@ -59,7 +59,7 @@ entity dac is
    wb_err_o       : out  std_ulogic := '0'; -- transfer error
    
    -- DAC Output --
-   dac_pwm_o		:	out std_logic	:= '1'
+   dac_pdm_o		:	out std_logic	:= '0'
   );
 end entity;
 
@@ -111,7 +111,10 @@ architecture dac_rtl of dac is
   signal    get_sample          :std_logic;
   signal    load_shift_reg      :std_logic;
   signal    data_fifo_out       :std_ulogic_vector(FIFO_WIDTH-1 downto 0);
-  signal    dac_pwm_level       :unsigned(9 downto 0);
+
+  -- PDM signals
+  signal err: std_ulogic_vector(15 downto 0) :=  X"0000";
+  signal y_out: std_ulogic_vector(15 downto 0) :=  X"0000";
 
 begin
   
@@ -273,19 +276,22 @@ begin
     end if;    
   end process;
 
-  dac_pwm_level <= unsigned(data_fifo_out(13 downto 4));
-
-  -- Shift the data out from the shift register
-  -- Load a new value when signalled
-  process(dac_enable, clk_div)
+  PDM_process: process(dac_clk_i, dac_enable, data_fifo_out, err)
   begin
     if(dac_enable = '0') then
-      dac_pwm_o <= '0';
+      dac_pdm_o <= '0';
+      err <= X"0000";
+      y_out <= X"0000";
     else
-      if(clk_div >= dac_pwm_level) then
-        dac_pwm_o <= '0';
-      else
-        dac_pwm_o <= '1';
+      if(rising_edge(dac_clk_i)) then
+        if (unsigned(data_fifo_out) >= unsigned(err)) then
+          dac_pdm_o <= '1';
+          y_out <= X"FFFF";
+        else
+          dac_pdm_o <= '0';
+          y_out <= X"0000";
+        end if;
+        err <= std_ulogic_vector(unsigned(err) + unsigned(y_out) - unsigned(data_fifo_out));
       end if;
     end if;    
   end process;

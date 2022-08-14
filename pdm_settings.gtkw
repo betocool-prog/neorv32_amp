@@ -1,0 +1,31 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Sun Aug 14 06:03:13 2022
+[*]
+[dumpfile] "/home/betocool/Projects/neorv32_amp/pdm_wave.ghw"
+[dumpfile_mtime] "Sun Aug 14 05:55:30 2022"
+[dumpfile_size] 115803
+[savefile] "/home/betocool/Projects/neorv32_amp/pdm_settings.gtkw"
+[timestart] 0
+[size] 1920 1043
+[pos] -1 -1
+*-33.380280 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.pdm_tb.
+[treeopen] top.pdm_tb.uut.
+[sst_width] 221
+[signals_width] 218
+[sst_expanded] 1
+[sst_vpaned_height] 298
+@22
+#{top.pdm_tb.data_i[15:0]} top.pdm_tb.data_i[15] top.pdm_tb.data_i[14] top.pdm_tb.data_i[13] top.pdm_tb.data_i[12] top.pdm_tb.data_i[11] top.pdm_tb.data_i[10] top.pdm_tb.data_i[9] top.pdm_tb.data_i[8] top.pdm_tb.data_i[7] top.pdm_tb.data_i[6] top.pdm_tb.data_i[5] top.pdm_tb.data_i[4] top.pdm_tb.data_i[3] top.pdm_tb.data_i[2] top.pdm_tb.data_i[1] top.pdm_tb.data_i[0]
+@28
+top.pdm_tb.uut.clk_i
+@22
+#{top.pdm_tb.uut.y_out[15:0]} top.pdm_tb.uut.y_out[15] top.pdm_tb.uut.y_out[14] top.pdm_tb.uut.y_out[13] top.pdm_tb.uut.y_out[12] top.pdm_tb.uut.y_out[11] top.pdm_tb.uut.y_out[10] top.pdm_tb.uut.y_out[9] top.pdm_tb.uut.y_out[8] top.pdm_tb.uut.y_out[7] top.pdm_tb.uut.y_out[6] top.pdm_tb.uut.y_out[5] top.pdm_tb.uut.y_out[4] top.pdm_tb.uut.y_out[3] top.pdm_tb.uut.y_out[2] top.pdm_tb.uut.y_out[1] top.pdm_tb.uut.y_out[0]
+@23
+#{top.pdm_tb.uut.err[15:0]} top.pdm_tb.uut.err[15] top.pdm_tb.uut.err[14] top.pdm_tb.uut.err[13] top.pdm_tb.uut.err[12] top.pdm_tb.uut.err[11] top.pdm_tb.uut.err[10] top.pdm_tb.uut.err[9] top.pdm_tb.uut.err[8] top.pdm_tb.uut.err[7] top.pdm_tb.uut.err[6] top.pdm_tb.uut.err[5] top.pdm_tb.uut.err[4] top.pdm_tb.uut.err[3] top.pdm_tb.uut.err[2] top.pdm_tb.uut.err[1] top.pdm_tb.uut.err[0]
+@28
+top.pdm_tb.uut.pdm_out
+[pattern_trace] 1
+[pattern_trace] 0

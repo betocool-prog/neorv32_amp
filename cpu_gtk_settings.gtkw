@@ -1,10 +1,10 @@
 [*]
 [*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
-[*] Tue Aug  9 13:28:03 2022
+[*] Wed Aug 10 11:58:52 2022
 [*]
 [dumpfile] "/home/betocool/Projects/neorv32_amp/cpu.ghw"
-[dumpfile_mtime] "Tue Aug  9 08:38:40 2022"
-[dumpfile_size] 9503316
+[dumpfile_mtime] "Wed Aug 10 11:56:55 2022"
+[dumpfile_size] 9557974
 [savefile] "/home/betocool/Projects/neorv32_amp/cpu_gtk_settings.gtkw"
 [timestart] 0
 [size] 1920 1043
@@ -14,8 +14,7 @@
 [treeopen] top.neorv32_amp_tb.
 [treeopen] top.neorv32_amp_tb.uut.
 [treeopen] top.neorv32_amp_tb.uut.adc0.downsampler.samples.
-[treeopen] top.neorv32_amp_tb.uut.dac0.fifo.
-[treeopen] top.neorv32_amp_tb.uut.neorv32_top_inst.
+[treeopen] top.neorv32_amp_tb.uut.dac0.
 [treeopen] top.neorv32_amp_tb.uut.neorv32_top_inst.neorv32_wishbone_inst_true.
 [treeopen] top.neorv32_amp_tb.uut.neorv32_top_inst.neorv32_wishbone_inst_true.neorv32_wishbone_inst.
 [treeopen] top.neorv32_amp_tb.uut.neorv32_top_inst.neorv32_wishbone_inst_true.neorv32_wishbone_inst.ctrl.
@@ -56,12 +55,12 @@ top.neorv32_amp_tb.uut.dac0.dac_cpu_clk_i
 #{top.neorv32_amp_tb.uut.dac0.dac_status[31:0]} top.neorv32_amp_tb.uut.dac0.dac_status[31] top.neorv32_amp_tb.uut.dac0.dac_status[30] top.neorv32_amp_tb.uut.dac0.dac_status[29] top.neorv32_amp_tb.uut.dac0.dac_status[28] top.neorv32_amp_tb.uut.dac0.dac_status[27] top.neorv32_amp_tb.uut.dac0.dac_status[26] top.neorv32_amp_tb.uut.dac0.dac_status[25] top.neorv32_amp_tb.uut.dac0.dac_status[24] top.neorv32_amp_tb.uut.dac0.dac_status[23] top.neorv32_amp_tb.uut.dac0.dac_status[22] top.neorv32_amp_tb.uut.dac0.dac_status[21] top.neorv32_amp_tb.uut.dac0.dac_status[20] top.neorv32_amp_tb.uut.dac0.dac_status[19] top.neorv32_amp_tb.uut.dac0.dac_status[18] top.neorv32_amp_tb.uut.dac0.dac_status[17] top.neorv32_amp_tb.uut.dac0.dac_status[16] top.neorv32_amp_tb.uut.dac0.dac_status[15] top.neorv32_amp_tb.uut.dac0.dac_status[14] top.neorv32_amp_tb.uut.dac0.dac_status[13] top.neorv32_amp_tb.uut.dac0.dac_status[12] top.neorv32_amp_tb.uut.dac0.dac_status[11] top.neorv32_amp_tb.uut.dac0.dac_status[10] top.neorv32_amp_tb.uut.dac0.dac_status[9] top.neorv32_amp_tb.uut.dac0.dac_status[8] top.neorv32_amp_tb.uut.dac0.dac_status[7] top.neorv32_amp_tb.uut.dac0.dac_status[6] top.neorv32_amp_tb.uut.dac0.dac_status[5] top.neorv32_amp_tb.uut.dac0.dac_status[4] top.neorv32_amp_tb.uut.dac0.dac_status[3] top.neorv32_amp_tb.uut.dac0.dac_status[2] top.neorv32_amp_tb.uut.dac0.dac_status[1] top.neorv32_amp_tb.uut.dac0.dac_status[0]
 #{top.neorv32_amp_tb.uut.dac0.fifo.r_pnt[7:0]} top.neorv32_amp_tb.uut.dac0.fifo.r_pnt[7] top.neorv32_amp_tb.uut.dac0.fifo.r_pnt[6] top.neorv32_amp_tb.uut.dac0.fifo.r_pnt[5] top.neorv32_amp_tb.uut.dac0.fifo.r_pnt[4] top.neorv32_amp_tb.uut.dac0.fifo.r_pnt[3] top.neorv32_amp_tb.uut.dac0.fifo.r_pnt[2] top.neorv32_amp_tb.uut.dac0.fifo.r_pnt[1] top.neorv32_amp_tb.uut.dac0.fifo.r_pnt[0]
 #{top.neorv32_amp_tb.uut.dac0.fifo.w_pnt[7:0]} top.neorv32_amp_tb.uut.dac0.fifo.w_pnt[7] top.neorv32_amp_tb.uut.dac0.fifo.w_pnt[6] top.neorv32_amp_tb.uut.dac0.fifo.w_pnt[5] top.neorv32_amp_tb.uut.dac0.fifo.w_pnt[4] top.neorv32_amp_tb.uut.dac0.fifo.w_pnt[3] top.neorv32_amp_tb.uut.dac0.fifo.w_pnt[2] top.neorv32_amp_tb.uut.dac0.fifo.w_pnt[1] top.neorv32_amp_tb.uut.dac0.fifo.w_pnt[0]
+@23
+#{top.neorv32_amp_tb.uut.dac0.data_fifo_out[15:0]} top.neorv32_amp_tb.uut.dac0.data_fifo_out[15] top.neorv32_amp_tb.uut.dac0.data_fifo_out[14] top.neorv32_amp_tb.uut.dac0.data_fifo_out[13] top.neorv32_amp_tb.uut.dac0.data_fifo_out[12] top.neorv32_amp_tb.uut.dac0.data_fifo_out[11] top.neorv32_amp_tb.uut.dac0.data_fifo_out[10] top.neorv32_amp_tb.uut.dac0.data_fifo_out[9] top.neorv32_amp_tb.uut.dac0.data_fifo_out[8] top.neorv32_amp_tb.uut.dac0.data_fifo_out[7] top.neorv32_amp_tb.uut.dac0.data_fifo_out[6] top.neorv32_amp_tb.uut.dac0.data_fifo_out[5] top.neorv32_amp_tb.uut.dac0.data_fifo_out[4] top.neorv32_amp_tb.uut.dac0.data_fifo_out[3] top.neorv32_amp_tb.uut.dac0.data_fifo_out[2] top.neorv32_amp_tb.uut.dac0.data_fifo_out[1] top.neorv32_amp_tb.uut.dac0.data_fifo_out[0]
 @28
 top.neorv32_amp_tb.uut.dac0.fifo.we
-@22
-#{top.neorv32_amp_tb.uut.dac0.dac_pwm_level[9:0]} top.neorv32_amp_tb.uut.dac0.dac_pwm_level[9] top.neorv32_amp_tb.uut.dac0.dac_pwm_level[8] top.neorv32_amp_tb.uut.dac0.dac_pwm_level[7] top.neorv32_amp_tb.uut.dac0.dac_pwm_level[6] top.neorv32_amp_tb.uut.dac0.dac_pwm_level[5] top.neorv32_amp_tb.uut.dac0.dac_pwm_level[4] top.neorv32_amp_tb.uut.dac0.dac_pwm_level[3] top.neorv32_amp_tb.uut.dac0.dac_pwm_level[2] top.neorv32_amp_tb.uut.dac0.dac_pwm_level[1] top.neorv32_amp_tb.uut.dac0.dac_pwm_level[0]
-@28
-top.neorv32_amp_tb.uut.dac0.dac_pwm_o
+top.neorv32_amp_tb.uut.dac0.dac_clk_i
+top.neorv32_amp_tb.uut.dac0.dac_pdm_o
 @200
 -
 -Wishbone
@@ -77,7 +76,6 @@ top.neorv32_amp_tb.uut.neorv32_top_inst.neorv32_wishbone_inst_true.neorv32_wishb
 @28
 top.neorv32_amp_tb.uut.wb_dac_ack
 top.neorv32_amp_tb.uut.wb_adc_ack
-@29
 top.neorv32_amp_tb.uut.neorv32_top_inst.neorv32_wishbone_inst_true.neorv32_wishbone_inst.clk_i
 @200
 -

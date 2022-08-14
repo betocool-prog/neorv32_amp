@@ -70,7 +70,7 @@ entity neorv32_amp_sim is
     adc_clk_o	:	out std_logic;  -- Serial clock
 
     -- DAC --
-    dac_pwm_o		    :	out std_logic
+    dac_pdm_o		    :	out std_logic
 
   );
 end entity;
@@ -128,7 +128,7 @@ component dac is
     wb_err_o       : out  std_ulogic := '0'; -- transfer error
    
     -- DAC Output --
-    dac_pwm_o		    :	out std_logic	:= '1'
+    dac_pdm_o		    :	out std_logic	:= '1'
 	);
 end component dac;
   
@@ -270,7 +270,7 @@ adc0: component adc
       wb_err_o	          => wb_dac_err,
 
       -- DAC output
-      dac_pwm_o           => dac_pwm_o
+      dac_pdm_o           => dac_pdm_o
     );
 
   wb_ack <= wb_adc_ack or wb_dac_ack;

@@ -33,3 +33,7 @@ neorv32_amp_tb
 
 # measurement
 neorv32_amp.dwf3work
+
+.ipynb_checkpoints/
+
+pdm_build/
