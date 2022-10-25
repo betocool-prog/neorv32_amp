@@ -40,81 +40,81 @@ entity dac is
   port (
    -- DAC --
    -- Interface to the TOP level
-   dac_clk_i		: 	in std_logic; -- 49.152 MHz
-   dac_rst_i		:	in std_logic;
+   dac_clk_i		  :	in std_logic; -- 49.152 MHz
+   dac_rst_i		  :	in std_logic;
 
    -- CPU clock input
    dac_cpu_clk_i	: 	in std_logic;
 
    -- Wishbone bus interface (available if MEM_EXT_EN = true) --
-  --  wb_tag_i       : in std_ulogic_vector(02 downto 0); -- request tag
-   wb_adr_i       : in std_ulogic_vector(31 downto 0) := (others => '0'); -- address
-   wb_dat_i       : in  std_ulogic_vector(31 downto 0) := (others => 'U'); -- read data
-   wb_dat_o       : out std_ulogic_vector(31 downto 0); -- write data
-   wb_we_i        : in std_ulogic; -- read/write
-   wb_sel_i       : in std_ulogic_vector(03 downto 0); -- byte enable
-   wb_stb_i       : in std_ulogic; -- strobe
-   wb_cyc_i       : in std_ulogic; -- valid cycle
-   wb_ack_o       : out  std_ulogic := '0'; -- transfer acknowledge
-   wb_err_o       : out  std_ulogic := '0'; -- transfer error
+   wb_adr_i       : in std_ulogic_vector(31 downto 0)     := (others => '0'); -- address
+   wb_dat_i       : in  std_ulogic_vector(31 downto 0)    := (others => 'U'); -- read data
+   wb_dat_o       : out std_ulogic_vector(31 downto 0);                       -- write data
+   wb_we_i        : in std_ulogic;                                            -- read/write
+   wb_sel_i       : in std_ulogic_vector(03 downto 0);                        -- byte enable
+   wb_stb_i       : in std_ulogic;                                            -- strobe
+   wb_cyc_i       : in std_ulogic;                                            -- valid cycle
+   wb_ack_o       : out  std_ulogic                       := '0';             -- transfer acknowledge
+   wb_err_o       : out  std_ulogic                       := '0';             -- transfer error
    
    -- DAC Output --
-   dac_pdm_o		:	out std_logic	:= '0'
+   dac_pdm_o		  :	out std_logic	                        := '0'
   );
 end entity;
 
 architecture dac_rtl of dac is
   
-  signal clk_div		    : 	unsigned(9 downto 0) := (others => '0');
+  signal clk_div        : unsigned(9 downto 0) := (others => '0');
 
   -- Wishbone interface
-  constant MEM_START	  : std_ulogic_vector(31 downto 0) 	:= X"A0000100";
-  constant MEM_STOP		  : std_ulogic_vector(31 downto 0) 	:= X"A0000200";
-  signal read_req		    : std_logic 	:= '0';
-  signal prev_read_req	:	std_logic 	:= '0';
-  signal write_req		  :	std_logic 	:= '0';
-  signal prev_write_req	:	std_logic 	:= '0';
+  constant MEM_START    : std_ulogic_vector(31 downto 0) 	:= X"A0000100";
+  constant MEM_STOP     : std_ulogic_vector(31 downto 0) 	:= X"A0000200";
+  signal read_req		    : std_logic 	                    := '0';
+  signal prev_read_req  :	std_logic 	                    := '0';
+  signal write_req		  :	std_logic 	                    := '0';
+  signal prev_write_req :	std_logic 	                    := '0';
 
   -- DAC FIFO
   -- This is based very much on S. Nolting's FIFO module.
-  signal FIFO_DEPTH		: 	natural := 256;
-  signal FIFO_WIDTH		:	natural := 16;
-  signal FIFO_IDX			:	natural := (8 - 1); -- Log2 of FIFO_DEPTH - 1
+  signal FIFO_DEPTH		  : natural                         := 256;
+  signal FIFO_WIDTH		  :	natural                         := 16;
+  signal FIFO_IDX			  :	natural                         := (8 - 1); -- Log2 of FIFO_DEPTH - 1
 
   type fifo_data_t is array (0 to FIFO_DEPTH-1) of std_ulogic_vector(FIFO_WIDTH-1 downto 0);
   type fifo_t is record
-    we    : std_ulogic; -- write enable
-    w_pnt : std_ulogic_vector(FIFO_IDX downto 0); -- write pointer
-    r_pnt : std_ulogic_vector(FIFO_IDX downto 0); -- read pointer
-    level : std_ulogic_vector(FIFO_IDX downto 0); -- fill count
-    data  : fifo_data_t; -- fifo memory
-    empty : std_ulogic;
-    full  : std_ulogic;
-    half  : std_ulogic;
+    we                  : std_ulogic;                           -- write enable
+    w_pnt               : std_ulogic_vector(FIFO_IDX downto 0); -- write pointer
+    r_pnt               : std_ulogic_vector(FIFO_IDX downto 0); -- read pointer
+    level               : std_ulogic_vector(FIFO_IDX downto 0); -- fill count
+    data                : fifo_data_t;                          -- fifo memory
+    empty               : std_ulogic;
+    full                : std_ulogic;
+    half                : std_ulogic;
     end record;
-  signal fifo     : fifo_t;
-  signal fifo_we  :  std_logic;
+  signal fifo           : fifo_t;
+  signal fifo_we        : std_logic;
   
-  signal data_in  :std_ulogic_vector(FIFO_WIDTH-1 downto 0);
+  signal data_in        :std_ulogic_vector(FIFO_WIDTH-1 downto 0);
 
   -- DAC Registers, control and status
-  signal    dac_status          : std_ulogic_vector(31 downto 0) := (others => '0');
-  signal    dac_enable          : std_logic := '0';
-  constant  DAC_ENABLE_BIT      : natural := 0;
-  constant  DAC_FIFO_EMPTY_BIT  : natural := 1;
-  constant  DAC_FIFO_FULL_BIT   : natural := 2;
-  constant  DAC_FIFO_HALF_BIT   : natural := 3;
-  constant  DAC_FIFO_LEVEL_L    : natural := 4;
-  constant  DAC_FIFO_LEVEL_H    : natural := FIFO_IDX + DAC_FIFO_LEVEL_L;
+  signal    dac_status          : std_ulogic_vector(31 downto 0)  := (others => '0');
+  signal    dac_enable          : std_logic                       := '0';
+  constant  DAC_ENABLE_BIT      : natural                         := 0;
+  constant  DAC_FIFO_EMPTY_BIT  : natural                         := 1;
+  constant  DAC_FIFO_FULL_BIT   : natural                         := 2;
+  constant  DAC_FIFO_HALF_BIT   : natural                         := 3;
+  constant  DAC_FIFO_LEVEL_L    : natural                         := 4;
+  constant  DAC_FIFO_LEVEL_H    : natural                         := FIFO_IDX + DAC_FIFO_LEVEL_L;
 
   -- DAC Data out
+  signal    dac_clk_o           :std_logic;
   signal    get_sample          :std_logic;
   signal    load_shift_reg      :std_logic;
   signal    data_fifo_out       :std_ulogic_vector(FIFO_WIDTH-1 downto 0);
 
   -- PDM signals
-  signal err: std_ulogic_vector(15 downto 0) :=  X"0000";
-  signal y_out: std_ulogic_vector(15 downto 0) :=  X"0000";
+  signal  err                   : std_ulogic_vector(15 downto 0)  := X"0000";
+  signal  y_out                 : std_ulogic_vector(15 downto 0)  := X"0000";
 
 begin
   
@@ -191,7 +191,10 @@ begin
   ) else '0';
 
   wb_err_o <= '0';
-  
+
+  -- This process handles reading and writing from the 
+  -- external memory interface to internal registers and 
+  -- Fifo  
   process(dac_cpu_clk_i)
   begin
     if (dac_rst_i = '1') then
@@ -211,7 +214,7 @@ begin
         fifo_we <= '0';
         wb_ack_o <= '0';
 
-        -- Handle writes
+        -- Handle wishbone writes
         prev_write_req <= write_req;
         if ((write_req = '1') and (prev_write_req = '0')) then
           if(wb_adr_i(3 downto 0) = X"0") then
@@ -225,7 +228,7 @@ begin
           end if;
         end if;
 
-        -- Handle reads
+        -- Handle wishbone reads
         prev_read_req <= read_req;
         if ((read_req = '1') and (prev_read_req = '0')) then
           if(wb_adr_i(3 downto 0) = X"0") then
@@ -243,8 +246,12 @@ begin
   end process;
 
   -- Stream the DAC data out
-  -- We work this using the 49MHz clock
-  -- Generate a pulse at 48 Khzprocess(dac_clk_i)
+  -- We work this using a 6.144 MHz clock derived
+  -- from the 49 MHz clock
+  -- Generate a pulse at 48 Khz
+
+  dac_clk_o <= clk_div(6);
+
   process(dac_clk_i, dac_enable)
   begin
     if(dac_enable = '0') then
@@ -276,14 +283,14 @@ begin
     end if;    
   end process;
 
-  PDM_process: process(dac_clk_i, dac_enable, data_fifo_out, err)
+  PDM_process: process(dac_clk_o, dac_enable, data_fifo_out, err)
   begin
     if(dac_enable = '0') then
       dac_pdm_o <= '0';
       err <= X"0000";
       y_out <= X"0000";
     else
-      if(rising_edge(dac_clk_i)) then
+      if(rising_edge(dac_clk_o)) then
         if (unsigned(data_fifo_out) >= unsigned(err)) then
           dac_pdm_o <= '1';
           y_out <= X"FFFF";
