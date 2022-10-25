@@ -47,3 +47,27 @@ sim_run::
 
 sim_clean::
 	rm -rf ./build/*
+
+#
+# DAC Simulation
+#
+
+# Simulate dac
+sim_dac:: sim_dac_add sim_dac_analysis sim_dac_run
+
+# Add files to the project
+sim_dac_add::
+	ghdl -i --std=08 --workdir=build --work=dac \
+				./dac_tb.vhd \
+				./dac.vhd
+
+# Elaborate
+sim_dac_analysis::
+	ghdl -m --std=08 --workdir=build --work=dac dac_tb
+
+# Run the simulation
+sim_dac_run::
+	ghdl -r --std=08 --workdir=build --work=dac dac_tb --ieee-asserts=disable --stop-time=2ms --wave=dac.ghw
+
+sim_dac_clean::
+	rm -rf ./build/*

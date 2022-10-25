@@ -37,3 +37,5 @@ neorv32_amp.dwf3work
 .ipynb_checkpoints/
 
 pdm_build/
+
+dac_tb

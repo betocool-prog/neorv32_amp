@@ -1,0 +1,26 @@
+[*]
+[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
+[*] Tue Oct 25 13:12:47 2022
+[*]
+[dumpfile] "/media/disk_512gb/FPGA/neorv32_amp/dac.ghw"
+[dumpfile_mtime] "Tue Oct 25 13:10:24 2022"
+[dumpfile_size] 4107221
+[savefile] "/media/disk_512gb/FPGA/neorv32_amp/dac_settings.gtkw"
+[timestart] 0
+[size] 1920 1043
+[pos] -1 -1
+*-37.959133 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.dac_tb.
+[treeopen] top.dac_tb.uut.
+[sst_width] 221
+[signals_width] 152
+[sst_expanded] 1
+[sst_vpaned_height] 298
+@28
+top.dac_tb.dac_clk_i
+top.dac_tb.dac_cpu_clk_i
+@29
+top.dac_tb.dac_rst_i
+[pattern_trace] 1
+[pattern_trace] 0
