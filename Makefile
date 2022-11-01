@@ -67,7 +67,7 @@ sim_dac_analysis::
 
 # Run the simulation
 sim_dac_run::
-	ghdl -r --std=08 --workdir=build --work=dac dac_tb --ieee-asserts=disable --stop-time=2ms --wave=dac.ghw
+	ghdl -r --std=08 --workdir=build --work=dac dac_tb --ieee-asserts=disable --stop-time=200us --wave=dac.ghw
 
 sim_dac_clean::
 	rm -rf ./build/*

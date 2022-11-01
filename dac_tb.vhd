@@ -63,11 +63,15 @@ architecture behav of dac_tb is
   signal dac_pdm_o		  : std_logic	                      := '0';
 
   -- Timing
-  constant clk_period: time := 20.34 ns;
+  constant clk_period   : time := 20.34 ns;
   constant clk_cpu_period: time := 10 ns;
 
   -- Memory holding test data
   type mem16_t is array (natural range <>) of std_ulogic_vector(15 downto 0); -- memory with 16-bit entries
+
+  constant MEM_START    : std_ulogic_vector(31 downto 0) 	:= X"A0000100";
+  constant MEM_STOP     : std_ulogic_vector(31 downto 0) 	:= X"A0000200";
+  signal mem_idx        : unsigned(7 downto 0) 	:= X"00";
 
   -- 48 16-bit samples, 1 KHz at 48KHz fs
   constant test_data : mem16_t := (
@@ -88,7 +92,14 @@ architecture behav of dac_tb is
     -- Data output signals
   	signal data_cnt 		:	unsigned(3 downto 0) := X"0";
   	signal bit_cnt 		  :	unsigned(3 downto 0) := X"0";
-    signal data_reg     : std_ulogic_vector(15 downto 0) := x"0000";
+    signal data_reg     : std_ulogic_vector(15 downto 0)  := x"0000";
+    signal dac_status   : std_ulogic_vector(31 downto 0)  := x"00000000";
+    signal dac_level    : std_ulogic_vector(7 downto 0)   := x"00";
+
+    -- State machine states
+    type tstate is (reset, enable, idle, read_status, write_data);
+    signal mem_state: tstate;
+    signal prev_state: tstate;
 
 begin
     -- connecting testbench signals with adc.vhd
@@ -129,13 +140,80 @@ begin
   dac_rst_i <= '1', '0' after 1 us;
 
   -- Main process, writes data to memory
+
+  dac_level <= dac_status(11 downto 4);
   
-  dac_write_process: process
+  dac_write_process: process(prev_state, mem_state, dac_cpu_clk_i, mem_idx)
   begin
-    dac_cpu_clk_i <= '0';
-    wait for clk_cpu_period/2;
-    dac_cpu_clk_i <= '1';
-    wait for clk_cpu_period/2;
+    if (dac_rst_i = '1') then
+      -- All is zero
+      wb_adr_i <= x"00000000";
+      wb_dat_i <= x"00000000";
+      wb_we_i <= '0';
+      wb_stb_i <= '0';
+      wb_cyc_i <= '0';
+      mem_state <= reset;
+      mem_idx <= (others => '0');
+    else
+      if rising_edge(dac_cpu_clk_i) then
+        wb_adr_i <= x"00000000";
+        wb_dat_i <= x"00000000";
+        wb_we_i <= '0';
+        wb_stb_i <= '0';
+        wb_cyc_i <= '0';
+        mem_state <= reset;
+        case mem_state is
+          when reset =>
+            mem_state <= enable;
+
+          when enable =>
+            mem_state <= idle;
+            prev_state <= write_data;
+            wb_adr_i <= MEM_START;
+            wb_stb_i <= '1';
+            wb_cyc_i <= '1';
+            wb_we_i <= '1';
+            wb_dat_i <= x"00000001";
+
+          when idle =>
+            if (prev_state = write_data) then
+              mem_state <= read_status;
+            elsif (prev_state = read_status) then
+              mem_state <= write_data;
+            end if;
+
+          when read_status =>
+            mem_state <= idle;
+            prev_state <= read_status;
+            -- Read status word
+            wb_adr_i <= MEM_START;
+            wb_stb_i <= '1';
+            wb_cyc_i <= '1';
+            -- update dac_status
+            dac_status <= wb_dat_o;
+
+          when write_data =>
+            mem_state <= idle;
+            prev_state <= write_data;
+            -- write data to DAC
+            wb_adr_i <= std_ulogic_vector(unsigned(MEM_START) + 4);
+            wb_stb_i <= '1';
+            wb_cyc_i <= '1';
+            wb_we_i <= '1';
+            wb_dat_i(31 downto 16) <= (others => '0');
+            wb_dat_i(15 downto 0) <= test_data(to_integer(mem_idx));
+            mem_idx <= mem_idx + 1;
+            if mem_idx = 47 then
+              mem_idx <= X"00";
+            end if;
+
+          when others =>
+            wb_adr_i <= x"00000000";
+            wb_dat_i <= x"00000000";
+            mem_state <= reset;
+          end case;
+      end if;
+    end if;
   end process;
     
 end behav ;
