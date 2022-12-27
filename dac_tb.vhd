@@ -141,6 +141,8 @@ begin
 
   -- Main process, writes data to memory
 
+  -- update dac_status
+  dac_status <= wb_dat_o;
   dac_level <= dac_status(11 downto 4);
   
   dac_write_process: process(prev_state, mem_state, dac_cpu_clk_i, mem_idx)
@@ -189,8 +191,6 @@ begin
             wb_adr_i <= MEM_START;
             wb_stb_i <= '1';
             wb_cyc_i <= '1';
-            -- update dac_status
-            dac_status <= wb_dat_o;
 
           when write_data =>
             mem_state <= idle;
