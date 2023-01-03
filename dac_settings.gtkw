@@ -1,15 +1,15 @@
 [*]
-[*] GTKWave Analyzer v3.3.104 (w)1999-2020 BSI
-[*] Tue Nov  1 14:01:10 2022
+[*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
+[*] Tue Jan  3 14:45:15 2023
 [*]
 [dumpfile] "/media/disk_512gb/FPGA/neorv32_amp/dac.ghw"
-[dumpfile_mtime] "Tue Nov  1 14:00:58 2022"
-[dumpfile_size] 1199053
+[dumpfile_mtime] "Tue Jan  3 14:41:00 2023"
+[dumpfile_size] 29327306
 [savefile] "/media/disk_512gb/FPGA/neorv32_amp/dac_settings.gtkw"
-[timestart] 984600000
-[size] 1920 1043
+[timestart] 0
+[size] 1920 1044
 [pos] -1 -1
-*-25.141106 1046600000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-39.372566 1046600000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.dac_tb.
 [sst_width] 221
@@ -35,5 +35,9 @@ top.dac_tb.wb_we_i
 #{top.dac_tb.dac_level[7:0]} top.dac_tb.dac_level[7] top.dac_tb.dac_level[6] top.dac_tb.dac_level[5] top.dac_tb.dac_level[4] top.dac_tb.dac_level[3] top.dac_tb.dac_level[2] top.dac_tb.dac_level[1] top.dac_tb.dac_level[0]
 #{top.dac_tb.wb_dat_o[31:0]} top.dac_tb.wb_dat_o[31] top.dac_tb.wb_dat_o[30] top.dac_tb.wb_dat_o[29] top.dac_tb.wb_dat_o[28] top.dac_tb.wb_dat_o[27] top.dac_tb.wb_dat_o[26] top.dac_tb.wb_dat_o[25] top.dac_tb.wb_dat_o[24] top.dac_tb.wb_dat_o[23] top.dac_tb.wb_dat_o[22] top.dac_tb.wb_dat_o[21] top.dac_tb.wb_dat_o[20] top.dac_tb.wb_dat_o[19] top.dac_tb.wb_dat_o[18] top.dac_tb.wb_dat_o[17] top.dac_tb.wb_dat_o[16] top.dac_tb.wb_dat_o[15] top.dac_tb.wb_dat_o[14] top.dac_tb.wb_dat_o[13] top.dac_tb.wb_dat_o[12] top.dac_tb.wb_dat_o[11] top.dac_tb.wb_dat_o[10] top.dac_tb.wb_dat_o[9] top.dac_tb.wb_dat_o[8] top.dac_tb.wb_dat_o[7] top.dac_tb.wb_dat_o[6] top.dac_tb.wb_dat_o[5] top.dac_tb.wb_dat_o[4] top.dac_tb.wb_dat_o[3] top.dac_tb.wb_dat_o[2] top.dac_tb.wb_dat_o[1] top.dac_tb.wb_dat_o[0]
 #{top.dac_tb.dac_status[31:0]} top.dac_tb.dac_status[31] top.dac_tb.dac_status[30] top.dac_tb.dac_status[29] top.dac_tb.dac_status[28] top.dac_tb.dac_status[27] top.dac_tb.dac_status[26] top.dac_tb.dac_status[25] top.dac_tb.dac_status[24] top.dac_tb.dac_status[23] top.dac_tb.dac_status[22] top.dac_tb.dac_status[21] top.dac_tb.dac_status[20] top.dac_tb.dac_status[19] top.dac_tb.dac_status[18] top.dac_tb.dac_status[17] top.dac_tb.dac_status[16] top.dac_tb.dac_status[15] top.dac_tb.dac_status[14] top.dac_tb.dac_status[13] top.dac_tb.dac_status[12] top.dac_tb.dac_status[11] top.dac_tb.dac_status[10] top.dac_tb.dac_status[9] top.dac_tb.dac_status[8] top.dac_tb.dac_status[7] top.dac_tb.dac_status[6] top.dac_tb.dac_status[5] top.dac_tb.dac_status[4] top.dac_tb.dac_status[3] top.dac_tb.dac_status[2] top.dac_tb.dac_status[1] top.dac_tb.dac_status[0]
+@200
+-PDM Output
+@29
+top.dac_tb.uut.dac_pdm_o
 [pattern_trace] 1
 [pattern_trace] 0
