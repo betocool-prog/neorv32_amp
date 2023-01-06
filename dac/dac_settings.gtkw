@@ -1,17 +1,19 @@
 [*]
 [*] GTKWave Analyzer v3.3.103 (w)1999-2019 BSI
-[*] Tue Jan  3 14:45:15 2023
+[*] Fri Jan  6 10:17:48 2023
 [*]
-[dumpfile] "/media/disk_512gb/FPGA/neorv32_amp/dac.ghw"
-[dumpfile_mtime] "Tue Jan  3 14:41:00 2023"
-[dumpfile_size] 29327306
-[savefile] "/media/disk_512gb/FPGA/neorv32_amp/dac_settings.gtkw"
-[timestart] 0
+[dumpfile] "/media/disk_512gb/FPGA/neorv32_amp/dac/dac.ghw"
+[dumpfile_mtime] "Fri Jan  6 10:07:29 2023"
+[dumpfile_size] 27324324
+[savefile] "/media/disk_512gb/FPGA/neorv32_amp/dac/dac_settings.gtkw"
+[timestart] 890700000
 [size] 1920 1044
 [pos] -1 -1
-*-39.372566 1046600000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-25.372566 1047700000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.dac_tb.
+[treeopen] top.dac_tb.uut.
+[treeopen] top.dac_tb.uut.simple_fifo.
 [sst_width] 221
 [signals_width] 248
 [sst_expanded] 1
@@ -37,7 +39,18 @@ top.dac_tb.wb_we_i
 #{top.dac_tb.dac_status[31:0]} top.dac_tb.dac_status[31] top.dac_tb.dac_status[30] top.dac_tb.dac_status[29] top.dac_tb.dac_status[28] top.dac_tb.dac_status[27] top.dac_tb.dac_status[26] top.dac_tb.dac_status[25] top.dac_tb.dac_status[24] top.dac_tb.dac_status[23] top.dac_tb.dac_status[22] top.dac_tb.dac_status[21] top.dac_tb.dac_status[20] top.dac_tb.dac_status[19] top.dac_tb.dac_status[18] top.dac_tb.dac_status[17] top.dac_tb.dac_status[16] top.dac_tb.dac_status[15] top.dac_tb.dac_status[14] top.dac_tb.dac_status[13] top.dac_tb.dac_status[12] top.dac_tb.dac_status[11] top.dac_tb.dac_status[10] top.dac_tb.dac_status[9] top.dac_tb.dac_status[8] top.dac_tb.dac_status[7] top.dac_tb.dac_status[6] top.dac_tb.dac_status[5] top.dac_tb.dac_status[4] top.dac_tb.dac_status[3] top.dac_tb.dac_status[2] top.dac_tb.dac_status[1] top.dac_tb.dac_status[0]
 @200
 -PDM Output
-@29
+@28
 top.dac_tb.uut.dac_pdm_o
+@200
+-FIFO
+@22
+#{top.dac_tb.uut.simple_fifo.r_pnt[7:0]} top.dac_tb.uut.simple_fifo.r_pnt[7] top.dac_tb.uut.simple_fifo.r_pnt[6] top.dac_tb.uut.simple_fifo.r_pnt[5] top.dac_tb.uut.simple_fifo.r_pnt[4] top.dac_tb.uut.simple_fifo.r_pnt[3] top.dac_tb.uut.simple_fifo.r_pnt[2] top.dac_tb.uut.simple_fifo.r_pnt[1] top.dac_tb.uut.simple_fifo.r_pnt[0]
+#{top.dac_tb.uut.simple_fifo.w_pnt[7:0]} top.dac_tb.uut.simple_fifo.w_pnt[7] top.dac_tb.uut.simple_fifo.w_pnt[6] top.dac_tb.uut.simple_fifo.w_pnt[5] top.dac_tb.uut.simple_fifo.w_pnt[4] top.dac_tb.uut.simple_fifo.w_pnt[3] top.dac_tb.uut.simple_fifo.w_pnt[2] top.dac_tb.uut.simple_fifo.w_pnt[1] top.dac_tb.uut.simple_fifo.w_pnt[0]
+#{top.dac_tb.uut.simple_fifo.f_level[7:0]} top.dac_tb.uut.simple_fifo.f_level[7] top.dac_tb.uut.simple_fifo.f_level[6] top.dac_tb.uut.simple_fifo.f_level[5] top.dac_tb.uut.simple_fifo.f_level[4] top.dac_tb.uut.simple_fifo.f_level[3] top.dac_tb.uut.simple_fifo.f_level[2] top.dac_tb.uut.simple_fifo.f_level[1] top.dac_tb.uut.simple_fifo.f_level[0]
+@28
+top.dac_tb.uut.simple_fifo.empty
+top.dac_tb.uut.simple_fifo.half
+@29
+top.dac_tb.uut.simple_fifo.full
 [pattern_trace] 1
 [pattern_trace] 0

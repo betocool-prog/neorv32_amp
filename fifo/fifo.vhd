@@ -119,7 +119,7 @@ begin
     else
       if(rising_edge(clk_output_port)) then
         if(rd_en = '1') then 
-          if (f_empty /= '0') then
+          if (f_empty /= '1') then
             r_pnt <= r_pnt + 1;
           end if;
         end if;
@@ -140,12 +140,16 @@ begin
   end process;
 
   -- Read data out from FIFO
-  process(fifo_rst_i, clk_output_port, rd_en)
+  process(fifo_rst_i, clk_output_port, rd_en, f_empty)
   begin
     if(fifo_rst_i /= '1') then
       if(rising_edge(clk_output_port)) then
         if(rd_en = '1') then
-          data_output <= data(to_integer(r_pnt));
+          if(f_empty = '1') then
+            data_output <= (others => '0');
+          else  
+            data_output <= data(to_integer(r_pnt));
+          end if;
         end if;
       end if;
     end if;

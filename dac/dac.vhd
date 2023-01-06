@@ -74,14 +74,12 @@ architecture dac_rtl of dac is
   signal write_req		  :	std_logic 	                    := '0';
   signal prev_write_req :	std_logic 	                    := '0';
 
-  signal we             : std_ulogic;                           -- write enable
   signal level          : std_ulogic_vector(7 downto 0); -- fill count
   signal empty          : std_ulogic;
   signal full           : std_ulogic;
   signal half           : std_ulogic;
     
   signal fifo_we        : std_logic;
-
 
   -- DAC Registers, control and status
   signal    dac_status          : std_ulogic_vector(31 downto 0)  := (others => '0');
@@ -97,6 +95,7 @@ architecture dac_rtl of dac is
   signal    dac_clk_o           :std_logic;
   signal    get_sample          :std_logic;
   signal    load_shift_reg      :std_logic;
+  signal    data_fifo_in        :std_ulogic_vector(15 downto 0)   := (others => '0');
   signal    data_fifo_out       :std_ulogic_vector(15 downto 0)   := (others => '0');
 
   -- PDM signals
@@ -110,7 +109,7 @@ begin
     fifo_rst_i      =>  dac_rst_i,
     clk_input_port  =>  dac_cpu_clk_i,
     clk_output_port =>  dac_clk_i,
-    data_input      =>  wb_dat_i(15 downto 0),
+    data_input      =>  data_fifo_in,
     data_output     =>  data_fifo_out,
     wr_en           =>  fifo_we,
     rd_en           =>  get_sample,
@@ -190,6 +189,7 @@ begin
           elsif(wb_adr_i(3 downto 0) = X"4") then
             wb_ack_o <= '1';
             fifo_we <= '1';
+            data_fifo_in <= wb_dat_i(15 downto 0);
           -- Ignore any other case
           end if;
         end if;
