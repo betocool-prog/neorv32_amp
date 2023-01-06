@@ -23,7 +23,7 @@ platform/
 /sw/*.vhd
 
 # simulation
-/build/
+build/
 *.o
 wave.ghw
 adc_tb

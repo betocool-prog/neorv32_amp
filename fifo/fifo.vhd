@@ -70,9 +70,9 @@ architecture simple_fifo_rtl of simple_fifo is
   type mem is array (0 to FIFO_DEPTH-1) of std_ulogic_vector(FIFO_WIDTH-1 downto 0);
   signal data       : mem ;
 
-  signal w_pnt      : integer range 0 to 255          := 0; -- write pointer
-  signal r_pnt      : integer range 0 to 255          := 0 ; -- read pointer
-  signal f_level    : integer range 0 to 255; -- fill count
+  signal w_pnt      : unsigned(7 downto 0)   := (others => '0');--integer range 0 to 255          := 0; -- write pointer
+  signal r_pnt      : unsigned(7 downto 0)   := (others => '0');--integer range 0 to 255          := 0 ; -- read pointer
+  signal f_level    : unsigned(7 downto 0)   := (others => '0');--integer range 0 to 255; -- fill count
   signal f_empty    : std_ulogic;
   signal f_full     : std_ulogic;
   signal f_half     : std_ulogic;
@@ -83,10 +83,14 @@ begin
   empty <= f_empty;
   full <= f_full;
   half <= f_half;
-  level <= std_ulogic_vector(to_unsigned(f_level, 8));
+  level <= std_ulogic_vector(f_level);
 
   -- Fifo status signals
-  f_level <= w_pnt - r_pnt;
+  process(w_pnt, r_pnt)
+  begin
+    f_level <= w_pnt - r_pnt;
+  end process;
+
   f_empty <= '1' when (f_level = 0) else '0';
   f_full <= '1' when (f_level = 255) else '0';
   f_half <= '1' when (f_level > 127) else '0';
@@ -95,7 +99,7 @@ begin
   process(clk_input_port, fifo_rst_i, wr_en, f_level)
   begin
     if (fifo_rst_i = '1') then
-      w_pnt <= 0;
+      w_pnt <= (others => '0');
     else
       if rising_edge(clk_input_port) then
         if (wr_en = '1') then
@@ -111,7 +115,7 @@ begin
   process(clk_output_port, fifo_rst_i, f_level)
   begin
     if(fifo_rst_i = '1') then
-      r_pnt <= 0;
+      r_pnt <= (others => '0');
     else
       if(rising_edge(clk_output_port)) then
         if(rd_en = '1') then 
@@ -129,7 +133,7 @@ begin
     if(fifo_rst_i /= '1') then
       if rising_edge(clk_input_port) then
           if(wr_en = '1') then
-            data(w_pnt) <= data_input;
+            data(to_integer(w_pnt)) <= data_input;
           end if;
       end if;
     end if;
@@ -141,7 +145,7 @@ begin
     if(fifo_rst_i /= '1') then
       if(rising_edge(clk_output_port)) then
         if(rd_en = '1') then
-          data_output <= data(r_pnt);
+          data_output <= data(to_integer(r_pnt));
         end if;
       end if;
     end if;
