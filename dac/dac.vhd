@@ -232,25 +232,25 @@ begin
   end process;
 
   -- Generate PDM data 
-  dac_pdm_o <= '1' when (data_fifo_out /= X"0000") else '0';
-  -- PDM_process: process(dac_clk_o, dac_enable, data_fifo_out, err)
-  -- begin
-  --   if(dac_enable = '0') then
-  --     dac_pdm_o <= '0';
-  --     err <= X"0000";
-  --     y_out <= X"0000";
-  --   else
-  --     if(rising_edge(dac_clk_o)) then
-  --       if (unsigned(data_fifo_out) >= unsigned(err)) then
-  --         dac_pdm_o <= '1';
-  --         y_out <= X"FFFF";
-  --       else
-  --         dac_pdm_o <= '0';
-  --         y_out <= X"0000";
-  --       end if;
-  --       err <= std_ulogic_vector(unsigned(err) + unsigned(y_out) - unsigned(data_fifo_out));
-  --     end if;
-  --   end if;    
-  -- end process;
+  -- dac_pdm_o <= '1' when (data_fifo_out /= X"0000") else '0';
+  PDM_process: process(dac_clk_o, dac_enable, data_fifo_out, err)
+  begin
+    if(dac_enable = '0') then
+      dac_pdm_o <= '0';
+      err <= X"0000";
+      y_out <= X"0000";
+    else
+      if(rising_edge(dac_clk_o)) then
+        if (unsigned(data_fifo_out) >= unsigned(err)) then
+          dac_pdm_o <= '1';
+          y_out <= X"FFFF";
+        else
+          dac_pdm_o <= '0';
+          y_out <= X"0000";
+        end if;
+        err <= std_ulogic_vector(unsigned(err) + unsigned(y_out) - unsigned(data_fifo_out));
+      end if;
+    end if;    
+  end process;
 
 end architecture; --dac

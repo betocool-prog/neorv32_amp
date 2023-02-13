@@ -74,10 +74,21 @@ static volatile uint32_t data_buf = 0;
 volatile uint32_t* adc_reg = 0;
 volatile uint32_t* dac_reg = 0;
 
+static uint16_t dac_data[48] = {
+  32768, 37045, 41248, 45307, 49152, 52715, 55938, 58764, 61145,
+  63041, 64419, 65255, 65535, 65255, 64419, 63041, 61145, 58764,
+  55938, 52715, 49152, 45307, 41248, 37045, 32768, 28490, 24287,
+  20228, 16384, 12820,  9597,  6771,  4390,  2494,  1116,   280,
+  0,   280,  1116,  2494,  4390,  6771,  9597, 12820, 16383,
+  20228, 24287, 28490
+};
+
 int main() {
 
   uint64_t now_ms = 0;
   uint32_t samples_rxd = 0;
+  uint32_t dac_fifo_level = 0;
+  uint32_t dac_idx = 0;
 
   // clear GPIO output (set all bits to 0)
   neorv32_gpio_port_set(0);
@@ -99,15 +110,31 @@ int main() {
       // neorv32_uart0_printf("Status: %x, Samples RXD: %d\n", adc_reg[0], samples_rxd);
     }
 
+    // // Check if FIFO is half full
+    // if(adc_reg[0] & ADC_FIFO_HALF_BIT)
+    // {
+    //   // Read data out while possible
+    //   neorv32_gpio_pin_set(8);
+    //   for(uint32_t i=0; i < 128; i++)
+    //   {
+    //     dac_reg[1] = adc_reg[1] * 4;
+    //     samples_rxd++;
+    //   }
+    //   neorv32_gpio_pin_clr(8);
+    // }
+
     // Check if FIFO is half full
-    if(adc_reg[0] & ADC_FIFO_HALF_BIT)
+    dac_fifo_level = (dac_reg[0] & DAC_FIFO_LEVEL) >> 4;
+    if(dac_fifo_level < 128)
     {
-      // Read data out while possible
       neorv32_gpio_pin_set(8);
-      for(uint32_t i=0; i < 128; i++)
+      for(uint32_t i=0; i < 64; i++)
       {
-        dac_reg[1] = adc_reg[1] * 4;
-        samples_rxd++;
+        dac_reg[1] = dac_data[dac_idx];
+        dac_idx++;
+        if(dac_idx == 48){
+          dac_idx = 0;
+        }
       }
       neorv32_gpio_pin_clr(8);
     }

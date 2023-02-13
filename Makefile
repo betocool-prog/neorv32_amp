@@ -1,23 +1,35 @@
 
+QUARTUS_DIR=/media/disk_512gb/tools/intelFPGA_lite/21.1/quartus/bin
+QUARTUS_MAP=$(QUARTUS_DIR)/quartus_map
+QUARTUS_FIT=$(QUARTUS_DIR)/quartus_fit
+QUARTUS_ASM=$(QUARTUS_DIR)/quartus_asm
+QUARTUS_STA=$(QUARTUS_DIR)/quartus_sta
+QUARTUS_CPF=$(QUARTUS_DIR)/quartus_cpf
+QUARTUS_NPP=$(QUARTUS_DIR)/quartus_npp
+QUARTUS_PGM=$(QUARTUS_DIR)/quartus_pgm
+
 all:: syn fit asm sta cpf
 
 syn::
-	quartus_map --read_settings_files=on --write_settings_files=off neorv32_amp -c neorv32_amp
+	$(QUARTUS_MAP) --read_settings_files=on --write_settings_files=off neorv32_amp -c neorv32_amp
 
 fit::
-	quartus_fit --read_settings_files=off --write_settings_files=off neorv32_amp -c neorv32_amp
+	$(QUARTUS_FIT) --read_settings_files=off --write_settings_files=off neorv32_amp -c neorv32_amp
 
 asm::
-	quartus_asm --read_settings_files=off --write_settings_files=off neorv32_amp -c neorv32_amp
+	$(QUARTUS_ASM) --read_settings_files=off --write_settings_files=off neorv32_amp -c neorv32_amp
 
 sta::
-	quartus_sta neorv32_amp -c neorv32_amp
+	$(QUARTUS_STA) neorv32_amp -c neorv32_amp
 	
 cpf::
-	quartus_cpf -c neorv32_amp.cof
+	$(QUARTUS_CPF) -c neorv32_amp.cof
 
 npp::
-	quartus_npp neorv32_amp -c neorv32_amp --netlist_type=sgate
+	$(QUARTUS_NPP) neorv32_amp -c neorv32_amp --netlist_type=sgate
+
+pgm::
+	$(QUARTUS_PGM) -c USB-Blaster ./output_files/neorv32_amp.cdf
 
 NEORV32_LOCAL_RTL=../neorv32/rtl
 FIFO_RTL=../fifo
