@@ -107,13 +107,13 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to uart0_txd_o
 
 set_location_assignment PIN_D2 -to xip_csn_o
 set_location_assignment PIN_H1 -to xip_clk_o
-set_location_assignment PIN_C1 -to xip_sdo_o
-set_location_assignment PIN_H2 -to xip_sdi_i
+set_location_assignment PIN_C1 -to xip_dat_o
+set_location_assignment PIN_H2 -to xip_dat_i
 
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to xip_csn_o
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to xip_clk_o
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to xip_sdi_i
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to xip_sdo_o
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to xip_dat_i
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to xip_dat_o
 
 set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to uart0_rxd_i
 set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to rstn_i
@@ -153,6 +153,7 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to adc_data_o
 set_location_assignment PIN_D3 -to test_d3_o
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to test_d3_o
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to test_c3_o
+
 set_global_assignment -name VHDL_FILE ./adc/adc.vhd
 set_global_assignment -name VHDL_FILE ./dac/dac.vhd
 set_global_assignment -name VHDL_FILE ./fifo/fifo.vhd

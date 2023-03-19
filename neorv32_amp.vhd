@@ -64,8 +64,8 @@ entity neorv32_amp is
     
     -- XIP --
     xip_clk_o   : out std_ulogic; -- serial clock
-    xip_sdo_o   : out std_ulogic; -- controller data output
-    xip_sdi_i   : in  std_ulogic; -- device data input
+    xip_dat_o   : out std_ulogic; -- controller data output
+    xip_dat_i   : in  std_ulogic; -- device data input
     xip_csn_o   : out std_ulogic;	 -- chip-select, low-active
 
     -- ADC --
@@ -224,7 +224,7 @@ begin
     MEM_INT_DMEM_SIZE            => MEM_INT_DMEM_SIZE, -- size of processor-internal data memory in bytes
     
     -- Processor peripherals --
-    IO_GPIO_EN                   => true,              -- implement general purpose input/output port unit (GPIO)?
+    IO_GPIO_NUM                   => 8,              -- implement general purpose input/output port unit (GPIO)?
     IO_MTIME_EN                  => true,              -- implement machine system timer (MTIME)?
     IO_UART0_EN                  => true,              -- implement primary universal asynchronous receiver/transmitter (UART0)?
     
@@ -272,8 +272,8 @@ begin
 
     -- XIP (execute in place via SPI) signals (available if IO_XIP_EN = true) --
     xip_clk_o => xip_clk_o,		                         -- SPI serial clock
-    xip_sdo_o => xip_sdo_o,		                         -- controller data out, peripheral data in
-    xip_sdi_i => xip_sdi_i,		                         -- controller data in, peripheral data out
+    xip_dat_o => xip_dat_o,		                         -- controller data out, peripheral data in
+    xip_dat_i => xip_dat_i,		                         -- controller data in, peripheral data out
     xip_csn_o => xip_csn_o			                       -- chip-select
   );
  
