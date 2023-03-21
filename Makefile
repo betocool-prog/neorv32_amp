@@ -29,7 +29,10 @@ npp::
 	$(QUARTUS_NPP) neorv32_amp -c neorv32_amp --netlist_type=sgate
 
 pgm::
-	$(QUARTUS_PGM) -c USB-Blaster ./output_files/neorv32_amp.cdf
+	$(QUARTUS_PGM) -c USB-Blaster ./neorv32_amp.cdf
+
+flash::
+	$(QUARTUS_PGM) -c USB-Blaster ./neorv32_amp_flash.cdf
 
 NEORV32_LOCAL_RTL=../neorv32/rtl
 FIFO_RTL=../fifo
