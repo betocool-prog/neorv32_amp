@@ -92,7 +92,7 @@ int main() {
 
   // clear GPIO output (set all bits to 0)
   neorv32_gpio_port_set(0);
-  neorv32_uart0_setup(115200, PARITY_NONE, FLOW_CONTROL_NONE);
+  neorv32_uart_setup(NEORV32_UART0, 115200, 0);
 
   now_ms = neorv32_mtime_get_time();
 

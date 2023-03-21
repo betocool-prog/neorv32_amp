@@ -44,10 +44,7 @@ entity neorv32_amp is
     -- adapt these for your setup --
     CLOCK_FREQUENCY   				: natural := 100000000; -- clock frequency of clk_i in Hz
     MEM_INT_DMEM_SIZE 				: natural := 32*1024;     -- size of processor-internal data memory in bytes
-    MEM_INT_IMEM_EN              : boolean := true;  -- implement processor-internal instruction memory
-    MEM_INT_IMEM_SIZE            : natural := 16*1024; -- size of processor-internal instruction memory in bytes
-    IO_XIP_EN                    : boolean := false;   -- implement execute in place module (XIP)?
-    INT_BOOTLOADER_EN            : boolean := false  -- boot configuration: true = boot explicit bootloader; false = boot from int/ext (I)MEM
+    MEM_INT_IMEM_EN           : boolean := false  -- implement processor-internal instruction memory
 
   );
   port (
@@ -202,7 +199,7 @@ begin
   generic map (
     -- General --
     CLOCK_FREQUENCY              => CLOCK_FREQUENCY,   -- clock frequency of clk_i in Hz
-    INT_BOOTLOADER_EN            => INT_BOOTLOADER_EN,              -- boot configuration: true = boot explicit bootloader; false = boot from int/ext (I)MEM
+    INT_BOOTLOADER_EN            => true,              -- boot configuration: true = boot explicit bootloader; false = boot from int/ext (I)MEM
     
     -- RISC-V CPU Extensions --
     CPU_EXTENSION_RISCV_B        => true,              -- implement bit-manipulation extension?
@@ -229,15 +226,11 @@ begin
     IO_UART0_EN                  => true,              -- implement primary universal asynchronous receiver/transmitter (UART0)?
     
     -- XiP Peripheral, we'll do without the IMEM
-    IO_XIP_EN							=> IO_XIP_EN,					           -- implement execute in place module (XIP)?
+    IO_XIP_EN							       => true,					           -- implement execute in place module (XIP)?
 
     -- External memory interface (WISHBONE) --
     MEM_EXT_EN                   => true,  -- implement external memory bus interface?
     MEM_EXT_TIMEOUT              => 255,    -- cycles after a pending bus access auto-terminates (0 = disabled)
-    -- MEM_EXT_PIPE_MODE            : boolean := false;  -- protocol: false=classic/standard wishbone mode, true=pipelined wishbone mode
-    -- MEM_EXT_BIG_ENDIAN           : boolean := false;  -- byte order: true=big-endian, false=little-endian
-    -- MEM_EXT_ASYNC_RX             : boolean := false;  -- use register buffer for RX data when false
-    -- MEM_EXT_ASYNC_TX             : boolean := false;  -- use register buffer for TX data when false
     
     -- Internal Instruction Cache (iCACHE) --
     ICACHE_EN                    => true,              -- implement instruction cache
