@@ -1,5 +1,5 @@
 
-QUARTUS_DIR=/media/disk_512gb/tools/intelFPGA_lite/21.1/quartus/bin
+QUARTUS_DIR=/home/betocool/opt/intelFPGA_lite/21.1/quartus/bin
 QUARTUS_MAP=$(QUARTUS_DIR)/quartus_map
 QUARTUS_FIT=$(QUARTUS_DIR)/quartus_fit
 QUARTUS_ASM=$(QUARTUS_DIR)/quartus_asm
