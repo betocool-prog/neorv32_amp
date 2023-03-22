@@ -4,7 +4,8 @@ NEORV32_HOME ?= ../neorv32
 
 include $(NEORV32_HOME)/sw/common/common.mk
 
-QUARTUS_DIR=/home/betocool/opt/intelFPGA_lite/21.1/quartus/bin
+QUARTUS_DIR=/media/disk_512gb/tools/intelFPGA_lite/21.1/quartus/bin
+# QUARTUS_DIR=/home/betocool/opt/intelFPGA_lite/21.1/quartus/bin
 QUARTUS_MAP=$(QUARTUS_DIR)/quartus_map
 QUARTUS_FIT=$(QUARTUS_DIR)/quartus_fit
 QUARTUS_ASM=$(QUARTUS_DIR)/quartus_asm
@@ -29,6 +30,7 @@ sta::
 	
 cpf::
 	$(QUARTUS_CPF) -c neorv32_amp.cof
+	$(QUARTUS_CPF) -c neorv32_amp_flash.cof
 
 npp::
 	$(QUARTUS_NPP) neorv32_amp -c neorv32_amp --netlist_type=sgate

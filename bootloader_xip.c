@@ -288,7 +288,7 @@ int main(void)
   // configure trap handler (bare-metal, no neorv32 rte available) 
   // after all peripherals are OK!
   neorv32_cpu_csr_write(CSR_MTVEC, (uint32_t)(&bootloader_trap_handler));
-  neorv32_cpu_eint(); // enable global interrupts
+  neorv32_cpu_csr_set(CSR_MSTATUS, 1 << CSR_MSTATUS_MIE); // enable global interrupts
 
   // ------------------------------------------------
   // Auto boot sequence
@@ -603,7 +603,7 @@ void flash_read_status(void)
  **************************************************************************/
 void system_error(uint8_t err_code) {
 
-  neorv32_cpu_dint(); // deactivate IRQs
+  neorv32_cpu_csr_clr(CSR_MSTATUS, 1 << CSR_MSTATUS_MIE); // deactivate IRQs
 #if (STATUS_LED_EN != 0)
   if (neorv32_gpio_available()) {
     neorv32_gpio_port_set(0xFF & err_code); // permanently light up status LED

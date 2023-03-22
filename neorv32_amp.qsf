@@ -84,9 +84,13 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to gpio_o[7]
 #============================================================
 # KEY
 #============================================================
+# Key 0
 set_location_assignment PIN_J15 -to rstn_i
-
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rstn_i
+# Key 1
+set_location_assignment PIN_E1 -to bl_sel_n
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to bl_sel_n
+
 
 
 #============================================================
