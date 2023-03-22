@@ -199,7 +199,7 @@ set_global_assignment -name VHDL_FILE ../neorv32/rtl/core/neorv32_cfs.vhd
 set_global_assignment -name VHDL_FILE ../neorv32/rtl/core/neorv32_busswitch.vhd
 set_global_assignment -name VHDL_FILE ../neorv32/rtl/core/neorv32_bus_keeper.vhd
 set_global_assignment -name VHDL_FILE ../neorv32/rtl/core/neorv32_boot_rom.vhd
-set_global_assignment -name VHDL_FILE ../neorv32/rtl/core/neorv32_application_image.vhd
+set_global_assignment -name VHDL_FILE ./sw/neorv32_application_image.vhd
 set_global_assignment -name VHDL_FILE neorv32_bootloader_image.vhd
 set_global_assignment -name VHDL_FILE neorv32_amp.vhd
 set_location_assignment PIN_C3 -to dac_pdm_o

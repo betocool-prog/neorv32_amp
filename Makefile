@@ -1,5 +1,10 @@
+# Modify this variable to fit your NEORV32 setup (neorv32 home folder)
+NEORV32_HOME ?= ../neorv32
 
-QUARTUS_DIR=/home/betocool/opt/intelFPGA_lite/21.1/quartus/bin
+include $(NEORV32_HOME)/sw/common/common.mk
+
+QUARTUS_DIR=/media/disk_512gb/tools/intelFPGA_lite/21.1/quartus/bin
+# QUARTUS_DIR=/home/betocool/opt/intelFPGA_lite/21.1/quartus/bin
 QUARTUS_MAP=$(QUARTUS_DIR)/quartus_map
 QUARTUS_FIT=$(QUARTUS_DIR)/quartus_fit
 QUARTUS_ASM=$(QUARTUS_DIR)/quartus_asm
@@ -8,7 +13,7 @@ QUARTUS_CPF=$(QUARTUS_DIR)/quartus_cpf
 QUARTUS_NPP=$(QUARTUS_DIR)/quartus_npp
 QUARTUS_PGM=$(QUARTUS_DIR)/quartus_pgm
 
-all:: syn fit asm sta cpf
+fpga:: syn fit fgpa-asm sta cpf
 
 syn::
 	$(QUARTUS_MAP) --read_settings_files=on --write_settings_files=off neorv32_amp -c neorv32_amp
@@ -16,7 +21,7 @@ syn::
 fit::
 	$(QUARTUS_FIT) --read_settings_files=off --write_settings_files=off neorv32_amp -c neorv32_amp
 
-asm::
+fgpa-asm::
 	$(QUARTUS_ASM) --read_settings_files=off --write_settings_files=off neorv32_amp -c neorv32_amp
 
 sta::
@@ -24,6 +29,7 @@ sta::
 	
 cpf::
 	$(QUARTUS_CPF) -c neorv32_amp.cof
+	$(QUARTUS_CPF) -c neorv32_amp_flash.cof
 
 npp::
 	$(QUARTUS_NPP) neorv32_amp -c neorv32_amp --netlist_type=sgate
