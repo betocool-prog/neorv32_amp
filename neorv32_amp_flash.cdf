@@ -4,7 +4,7 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(EP4CE22) Path("/home/betocool/Projects/neorv32_amp/output_files/") File("neorv32_amp.jic") MfrSpec(OpMask(1) SEC_Device(EPCS64) Child_OpMask(1 1));
+		Device PartName(EP4CE22) Path("./output_files/") File("neorv32_amp.jic") MfrSpec(OpMask(1) SEC_Device(EPCS64) Child_OpMask(1 1));
 
 ChainEnd;
 
