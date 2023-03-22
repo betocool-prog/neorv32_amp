@@ -54,6 +54,7 @@ entity neorv32_amp is
     
     -- GPIO --
     gpio_o      : out std_ulogic_vector(7 downto 0); -- parallel output
+    bl_sel_n    : in std_logic; -- bootloader input
     
     -- UART0 --
     uart0_txd_o : out std_ulogic; -- UART0 send data
@@ -72,11 +73,7 @@ entity neorv32_amp is
     adc_clk_o	  :	out std_logic;  -- Serial clock
 	 
 	 -- DAC --
-	 dac_pdm_o		:	out std_logic;
-	 
-	 -- Test Pins--
-	--  test_c3_o	: out std_logic;
-	 test_d3_o	: out std_logic
+	 dac_pdm_o		:	out std_logic
   );
 end entity;
 
@@ -167,7 +164,7 @@ end component dac;
   signal test_c3: std_logic;
   
   -- NEORV32 LEDs
-  signal con_gpio_o : std_ulogic_vector(63 downto 0):= (others => '0');    
+  signal con_gpio : std_ulogic_vector(7 downto 0):= (others => '0');    
   
   -- Wishbone bus interface (available if MEM_EXT_EN = true) --
   -- signal wb_tag_o       : std_ulogic_vector(02 downto 0); -- request tag
@@ -245,7 +242,8 @@ begin
     rstn_i      => resetn,                             -- global reset, low-active, async
 
     -- GPIO (available if IO_GPIO_EN = true) --
-    gpio_o      => con_gpio_o,                         -- parallel output
+    gpio_o(7 downto 0)      => con_gpio,                         -- parallel output
+    gpio_i(0)      => bl_sel_n,                         -- parallel output
 
     -- primary UART0 (available if IO_UART0_EN = true) --
     uart0_txd_o => uart0_txd_o,                        -- UART0 send data
@@ -333,12 +331,8 @@ adc0: component adc
  );
   
   -- GPIO output --
-  gpio_o <= con_gpio_o(7 downto 0);
+  gpio_o <= con_gpio(7 downto 0);
   reset <= not resetn;
-  
-  -- Test pins
-  test_d3_o <= con_gpio_o(8);
-  -- test_c3_o <= '0';
 	
   -- Multiple wishbone buses
   wb_ack <= wb_adc_ack or wb_dac_ack;

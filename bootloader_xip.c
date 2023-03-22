@@ -254,6 +254,7 @@ int main(void)
   char console_cmd = 0;
   uint32_t aux = 0;
   uint32_t retval = 0;
+  uint64_t bl_sel_n = 0;
 
 #if (XIP_EN != 0)
   retval = neorv32_xip_setup(CLK_PRSC_2, 0, 0, 0x03);
@@ -297,41 +298,24 @@ int main(void)
 #if (AUTO_BOOT_TIMEOUT != 0)
   if (neorv32_mtime_available())
   {
-    uint64_t timeout_time = neorv32_mtime_get_time() + (uint64_t)(AUTO_BOOT_TIMEOUT * NEORV32_SYSINFO->CLK);
+      // ------------------------------------------------
+      // Check bootloader button
+      // If pressed, '1', stay in bootloader mode
+      // ------------------------------------------------
+    bl_sel_n = neorv32_gpio_port_get();
 
-    while(retval == 0)
+    if(1 == (bl_sel_n & 0x1))
     {
-      if (neorv32_uart0_available())
-      { 
-        // wait for a poke...
-        if (neorv32_uart0_char_received())
-        {
-          neorv32_uart0_putc(0x00);
-          retval = 1;
-        }
-      }
-
-      if(retval == 0)
+      // Jump to application
+      if (neorv32_xip_start(SPI_FLASH_ADDR_BYTES, XIP_PAGE_BASE))
       {
-        if (neorv32_mtime_get_time() >= timeout_time) 
-        { // timeout? start auto boot sequence
-          // configure and enable the actual XIP mode
-          // * configure 3 address bytes send to the SPI flash for addressing
-          // * map the XIP flash to the address space starting at XIP_PAGE_BASE
-          if (neorv32_xip_start(SPI_FLASH_ADDR_BYTES, XIP_PAGE_BASE))
-          {
-            retval = 1;
-            system_error(0xFF & ERROR_XIP_SETUP);
-          }
-
-          if(retval == 0)
-          {
-            // finally, jump to the XIP flash's base address we have configured to start execution **from there**
-            asm volatile ("call %[dest]" : : [dest] "i" (XIP_PAGE_BASE + SPI_FLASH_BASE_ADDR));
-            while(1);
-          }
-        }
+        system_error(0xFF & ERROR_XIP_SETUP);
       }
+
+      neorv32_gpio_port_set(0x0);
+      // finally, jump to the XIP flash's base address we have configured to start execution **from there**
+      asm volatile ("call %[dest]" : : [dest] "i" (XIP_PAGE_BASE + SPI_FLASH_BASE_ADDR));
+      while(1);
     }
   }
 #else

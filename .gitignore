@@ -15,13 +15,12 @@ platform/
 /.vscode/
 
 # Software
-/sw/*.bak
-/sw/*.elf
-/sw/*.bin
-/sw/*.hex
+*.bak
+*.elf
+*.bin
+*.hex
 /sw/*.asm
 /sw/*.vhd
-*.bin
 
 # simulation
 build/
